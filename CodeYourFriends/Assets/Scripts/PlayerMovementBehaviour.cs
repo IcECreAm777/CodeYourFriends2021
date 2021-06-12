@@ -104,8 +104,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _rightWallCheck = transform.Find("RightWallCheck").GetComponent<GetCollisionScript>();
 
         _cam = Camera.main;
-
-        OnPlaymodeStart();
     }
 
     protected void FixedUpdate()
@@ -136,6 +134,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         jumpMap.Disable();
         StartCoroutine(Zoom(editModePos.transform, true));
         ToggleModeInputs(false);
+        transform.GetComponentInChildren<UfoBehaviour>().StopPointingToGoal();
     }
     
     public void OnPlaymodeStart()
@@ -144,6 +143,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         walkMap.Enable();
         jumpMap.Enable();
         ToggleModeInputs(true);
+        transform.GetComponentInChildren<UfoBehaviour>().StartPointingToGoal();
     }
     
     private void OnJump(InputAction.CallbackContext context)
