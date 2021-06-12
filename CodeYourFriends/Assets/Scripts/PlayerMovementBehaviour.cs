@@ -124,9 +124,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
     }
     private void OnJump(InputAction.CallbackContext context)
     {
-        Debug.Log("Jump");
         if(_groundCheck.IsColliding)
-            Debug.Log("Grounded");
             _rb.AddForce(new Vector3(0, jumpForce, 0));
         
         if(_leftWallCheck.IsColliding)
