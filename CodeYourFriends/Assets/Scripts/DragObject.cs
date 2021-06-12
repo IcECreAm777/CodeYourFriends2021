@@ -14,6 +14,12 @@ public class DragObject : MonoBehaviour
     private float mZCoord;
     private Vector3 mOffset;
 
+    private Vector3 mouseOffsetTest;
+
+    private RaycastHit[] collidersUnderMouse;
+
+    private Vector3 intersection;
+
     private void Start()
     {
         player = GameObject.Find("Capsule");
@@ -25,11 +31,27 @@ public class DragObject : MonoBehaviour
     {
         mousePosition = mouseInputController.mousePosition;
         mouseButtonDown = mouseInputController.mouseButtonDown;
+        collidersUnderMouse = mouseInputController.collidersUnderMouse;
 
+        //Debug.Log(mousePosition);
+
+        Ray ray = Camera.main.ScreenPointToRay(mousePosition);
+
+        var factor = -(ray.origin.x) / ray.direction.x;
+
+        intersection = ray.origin + factor * ray.direction;
+
+        mouseDrag();
+        //if (collidersUnderMouse.Length > 0) Debug.Log("I'm over something");
     }
-    private void OnMouseDown()
+
+    private void mouseDrag()
     {
-        mOffset = gameObject.transform.position - GetMouseWorldPos();
+        if (mouseButtonDown && collidersUnderMouse.Length > 0 /*&& collidersUnderMouse[0].collider == gameObject.*/)
+        {
+            var currentPos = intersection;
+            transform.position = new Vector3(Mathf.Round(currentPos.x), Mathf.Round(currentPos.y), Mathf.Round(currentPos.z));
+        }
     }
 
     private Vector3 GetMouseWorldPos()
@@ -38,13 +60,9 @@ public class DragObject : MonoBehaviour
         mousePoint.z = mZCoord;
 
         return Camera.main.ScreenToWorldPoint(mousePoint);
-
     }
     private void OnMouseDrag()
     {
         transform.position = GetMouseWorldPos() + mOffset;
     }
 }
-
-
-
