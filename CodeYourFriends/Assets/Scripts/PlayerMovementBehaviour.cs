@@ -105,7 +105,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
         _cam = Camera.main;
 
-        OnPlaymodeEnd();
+        OnPlaymodeStart();
     }
 
     protected void FixedUpdate()
