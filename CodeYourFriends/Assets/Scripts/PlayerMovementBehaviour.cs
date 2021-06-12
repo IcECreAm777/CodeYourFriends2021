@@ -26,13 +26,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
     [SerializeField] 
     private float walledMaxGlidingSpeed = 2.0f;
 
-    [Header("Collision")]
-    
-    [SerializeField] 
-    private LayerMask groundLayer;
-    [SerializeField]
-    private LayerMask wallLayer;
-
     [Header("Input Actions")]
     [SerializeField]
     private InputActionMap walkMap;
@@ -40,12 +33,19 @@ public class PlayerMovementBehaviour : MonoBehaviour
     [SerializeField]
     private InputActionMap jumpMap;
 
+    [Header("Camera Control")] 
+    [SerializeField]
+    private GameObject editModePos;
+    [SerializeField]
+    private GameObject playModePos;
+
     // non editor properties
     private Vector2 _dir;
 
     // components
     private Rigidbody _rb;
     private CapsuleCollider _collider;
+    private Camera _cam;
     
     // children 
     private GetCollisionScript _groundCheck;
@@ -74,6 +74,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _groundCheck = transform.Find("GroundCheck").GetComponent<GetCollisionScript>();
         _leftWallCheck = transform.Find("LeftWallCheck").GetComponent<GetCollisionScript>();
         _rightWallCheck = transform.Find("RightWallCheck").GetComponent<GetCollisionScript>();
+        
+        _cam = Camera.main;
     }
 
     protected void FixedUpdate()
@@ -121,5 +123,31 @@ public class PlayerMovementBehaviour : MonoBehaviour
         
         if(_rightWallCheck.IsColliding)
             _rb.AddForce(new Vector3(0, jumpForce, -directionalJumpForce));
+    }
+
+    private IEnumerator ZoomOut()
+    {
+        var currentCamPos = _cam.transform.position;
+        var time = 0.0f;
+        while (time < 1.0f)
+        {
+            var changePos = Vector3.Lerp(currentCamPos, editModePos.transform.position, time);
+            _cam.transform.position = changePos;
+            time += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private IEnumerator ZoomIn()
+    {
+        var currentCamPos = _cam.transform.position;
+        var time = 0.0f;
+        while (time < 1.0f)
+        {
+            var changePos = Vector3.Lerp(currentCamPos, playModePos.transform.position, time);
+            _cam.transform.position = changePos;
+            time += Time.deltaTime;
+            yield return null;
+        }
     }
 }
