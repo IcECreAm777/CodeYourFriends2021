@@ -13,6 +13,7 @@ public class MouseInputController : MonoBehaviour
     private InputActionMap clickMap;
 
     public Vector2 mousePosition;
+    public bool mouseButtonDown;
     public RaycastHit[] collidersUnderMouse = new RaycastHit[10];
 
     void moveCursor(InputAction.CallbackContext context)
@@ -37,13 +38,25 @@ public class MouseInputController : MonoBehaviour
         }
         foreach (var action in clickMap)
         {
-            action.performed += leftClick;
+            action.performed += OnClick;
+            action.canceled += OnRelease;
         }
+    }
+
+    private void OnClick(InputAction.CallbackContext context)
+    {
+        mouseButtonDown = true;
+        //Debug.Log("Click");
+    }
+    private void OnRelease(InputAction.CallbackContext context)
+    {
+        mouseButtonDown = false;
+        //Debug.Log("Release");
     }
 
     private void Update()
     {
-        var projectedMousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
+        //var projectedMousePosition = Camera.main.ScreenToWorldPoint(mousePosition);
         //Debug.Log(projectedMousePosition);
     }
 
