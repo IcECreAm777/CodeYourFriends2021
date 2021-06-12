@@ -29,11 +29,13 @@ public class PlayerMovementBehaviour : MonoBehaviour
     [Header("Input Actions")]
     [SerializeField]
     private InputActionMap walkMap;
-
     [SerializeField]
     private InputActionMap jumpMap;
 
+
     [Header("Camera Control")] 
+    [SerializeField]
+    private float timeToZoom = 1.0f;
     [SerializeField]
     private GameObject editModePos;
     [SerializeField]
@@ -41,6 +43,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     // non editor properties
     private Vector2 _dir;
+    private bool _editMode;
 
     // components
     private Rigidbody _rb;
@@ -56,6 +59,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         // walkMap.Enable();
         // jumpMap.Enable();
+
+        OnPlaymodeStart();
 
         foreach (var action in walkMap)
         {
@@ -74,8 +79,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _groundCheck = transform.Find("GroundCheck").GetComponent<GetCollisionScript>();
         _leftWallCheck = transform.Find("LeftWallCheck").GetComponent<GetCollisionScript>();
         _rightWallCheck = transform.Find("RightWallCheck").GetComponent<GetCollisionScript>();
-        
+
         _cam = Camera.main;
+
+        if (_cam is null) return;
+        transform.Find("CamPlayModePos").position = _cam.transform.position;
+        transform.Find("CamPlayModePos").rotation = _cam.transform.rotation;
     }
 
     protected void FixedUpdate()
@@ -115,20 +124,22 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     public void OnPlaymodeEnd()
     {
+        _rb.velocity = Vector3.zero;
         walkMap.Disable();
         jumpMap.Disable();
-        _rb.velocity = Vector3.zero;
+        StartCoroutine(Zoom(editModePos.transform));
     }
+    
     public void OnPlaymodeStart()
     {
+        StartCoroutine(Zoom(playModePos.transform));
         walkMap.Enable();
         jumpMap.Enable();
     }
+    
     private void OnJump(InputAction.CallbackContext context)
     {
-        Debug.Log("Jump");
         if(_groundCheck.IsColliding)
-            Debug.Log("Grounded");
             _rb.AddForce(new Vector3(0, jumpForce, 0));
         
         if(_leftWallCheck.IsColliding)
@@ -138,29 +149,21 @@ public class PlayerMovementBehaviour : MonoBehaviour
             _rb.AddForce(new Vector3(0, jumpForce, -directionalJumpForce));
     }
 
-    private IEnumerator ZoomOut()
+    private IEnumerator Zoom(Transform targetTransform)
     {
-        var currentCamPos = _cam.transform.position;
         var time = 0.0f;
-        while (time < 1.0f)
+        var camTransform = _cam.transform;
+        var currentCamPos = camTransform.position;
+        var currentCamRot = camTransform.rotation;
+        
+        while (time < timeToZoom)
         {
-            var changePos = Vector3.Lerp(currentCamPos, editModePos.transform.position, time);
-            _cam.transform.position = changePos;
+            camTransform.position = Vector3.Lerp(currentCamPos, targetTransform.position, 1 / timeToZoom * time);
+            camTransform.rotation = Quaternion.Lerp(currentCamRot, targetTransform.rotation, 1 / timeToZoom * time);
             time += Time.deltaTime;
             yield return null;
         }
-    }
 
-    private IEnumerator ZoomIn()
-    {
-        var currentCamPos = _cam.transform.position;
-        var time = 0.0f;
-        while (time < 1.0f)
-        {
-            var changePos = Vector3.Lerp(currentCamPos, playModePos.transform.position, time);
-            _cam.transform.position = changePos;
-            time += Time.deltaTime;
-            yield return null;
-        }
+        _editMode = !_editMode;
     }
 }
