@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 public class DragObject : MonoBehaviour
@@ -15,10 +14,6 @@ public class DragObject : MonoBehaviour
     private float mZCoord;
     private Vector3 mOffset;
 
-    private EventSystem eventSystem;
-
-    private bool isPointerOverGameObject;
-
     private void Start()
     {
         player = GameObject.Find("Capsule");
@@ -30,13 +25,6 @@ public class DragObject : MonoBehaviour
     {
         mousePosition = mouseInputController.mousePosition;
         mouseButtonDown = mouseInputController.mouseButtonDown;
-
-        isPointerOverGameObject = eventSystem.IsPointerOverGameObject();
-
-        if (isPointerOverGameObject && mouseButtonDown)
-        {
-            Debug.Log("true");
-        }
 
     }
     private void OnMouseDown()
