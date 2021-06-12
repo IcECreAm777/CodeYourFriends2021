@@ -14,9 +14,14 @@ public class PlaymodeSwitch : MonoBehaviour
     private UnityEvent playmodeEndEvent;
 
     private bool playing = false;
-    private MouseInputController mouseInputController;
+
+    //components
     private Collider _collider;
+
+    //input
+    private MouseInputController mouseInputController;
     private bool mouseHovering = false;
+    private bool mouseBtnPressed = false;
     private void Start()
     {
         var player = GameObject.Find("Capsule");
@@ -44,28 +49,33 @@ public class PlaymodeSwitch : MonoBehaviour
             if(hovered) OnMouseEnter();
             else OnMouseExit();
         }
+
+        if(mouseInputController.mouseButtonDown != mouseBtnPressed)
+        {
+            mouseBtnPressed = mouseInputController.mouseButtonDown;
+            if(mouseBtnPressed) OnMouseClicked();
+        }
     }
 
     private void OnMouseEnter() 
     {
+        //TODO: effect for mouse hovering started
         var rend = GetComponent<Renderer>();
         rend.material.color = Color.red;
     }
 
     private void OnMouseExit()
     {
+        //TODO: effect for mouse hovering stopped
         var rend = GetComponent<Renderer>();
-        rend.material.color = Color.green;
+        rend.material.color = playing ? Color.green : Color.gray;
     }
-
-    private void OnGUI()
+    
+    private void OnMouseClicked()
     {
-        string txt = playing ? "Stop!" : "Play1";
-        if(GUI.Button(new Rect(30, 30, 150, 200), txt))
-        {
-            (playing ? playmodeEndEvent : playmodeStartEvent).Invoke();
-            playing = !playing;
-        }
+        if(!mouseHovering) return;
+        (playing ? playmodeEndEvent : playmodeStartEvent).Invoke();
+        playing = !playing;
     }
 
 }
