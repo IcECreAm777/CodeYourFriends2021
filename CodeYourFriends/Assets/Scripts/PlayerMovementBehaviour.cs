@@ -31,11 +31,17 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private InputActionMap walkMap;
     [SerializeField]
     private InputActionMap jumpMap;
+    [SerializeField]
+    private InputActionMap camMoveMap;
+    [SerializeField]
+    private InputAction debugAction;
 
 
     [Header("Camera Control")] 
     [SerializeField]
     private float timeToZoom = 1.0f;
+    [SerializeField]
+    private float cameraEditModeSpeed = 0.5f;
     [SerializeField]
     private GameObject editModePos;
     [SerializeField]
@@ -44,6 +50,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
     // non editor properties
     private Vector2 _dir;
     private bool _editMode;
+    private List<InputActionMap> playModeInputMaps;
+    private List<InputActionMap> editModeMaps;
 
     // components
     private Rigidbody _rb;
@@ -60,7 +68,18 @@ public class PlayerMovementBehaviour : MonoBehaviour
         // walkMap.Enable();
         // jumpMap.Enable();
 
-        OnPlaymodeStart();
+        playModeInputMaps = new List<InputActionMap>()
+        {
+            walkMap, jumpMap
+        };
+
+        editModeMaps = new List<InputActionMap>()
+        {
+            camMoveMap
+        };
+
+        debugAction.Enable();
+        debugAction.performed += debug;
 
         foreach (var action in walkMap)
         {
@@ -71,6 +90,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
         foreach (var action in jumpMap)
         {
             action.performed += OnJump;
+        }
+
+        foreach (var action in camMoveMap)
+        {
+            action.performed += OnWalk;
+            action.canceled += OnStop;
         }
 
         _rb = GetComponent<Rigidbody>();
@@ -85,9 +110,82 @@ public class PlayerMovementBehaviour : MonoBehaviour
         if (_cam is null) return;
         transform.Find("CamPlayModePos").position = _cam.transform.position;
         transform.Find("CamPlayModePos").rotation = _cam.transform.rotation;
+        
+        OnPlaymodeStart();
     }
 
     protected void FixedUpdate()
+    {
+        if (_editMode)
+        {
+            EditModeUpdates();
+            return;
+        }
+        
+        PlayModeUpdates();
+    }
+
+    private void OnWalk(InputAction.CallbackContext context)
+    {
+        _dir = context.ReadValue<Vector2>();
+    }
+
+    private void OnStop(InputAction.CallbackContext context)
+    {
+        _dir = Vector2.zero;
+    }
+
+    public void OnPlaymodeEnd()
+    {
+        _rb.velocity = Vector3.zero;
+        walkMap.Disable();
+        jumpMap.Disable();
+        StartCoroutine(Zoom(editModePos.transform, true));
+        ToggleModeInputs(false);
+    }
+    
+    public void OnPlaymodeStart()
+    {
+        StartCoroutine(Zoom(playModePos.transform, false));
+        walkMap.Enable();
+        jumpMap.Enable();
+        ToggleModeInputs(true);
+    }
+    
+    private void OnJump(InputAction.CallbackContext context)
+    {
+        if(_groundCheck.IsColliding)
+            _rb.AddForce(new Vector3(0, jumpForce, 0));
+        
+        if(_leftWallCheck.IsColliding)
+            _rb.AddForce(new Vector3(0, jumpForce, directionalJumpForce));
+        
+        if(_rightWallCheck.IsColliding)
+            _rb.AddForce(new Vector3(0, jumpForce, -directionalJumpForce));
+    }
+
+    private IEnumerator Zoom(Transform targetTransform, bool editMode)
+    {
+        DisableAllInput();
+        
+        var time = 0.0f;
+        var camTransform = _cam.transform;
+        var currentCamPos = camTransform.position;
+        var currentCamRot = camTransform.rotation;
+        
+        while (time < timeToZoom)
+        {
+            camTransform.position = Vector3.Lerp(currentCamPos, targetTransform.position, 1 / timeToZoom * time);
+            camTransform.rotation = Quaternion.Lerp(currentCamRot, targetTransform.rotation, 1 / timeToZoom * time);
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        _editMode = editMode;
+        yield return null;
+    }
+
+    private void PlayModeUpdates()
     {
         var horSpeed = _groundCheck.IsColliding ? _dir.x * speedForce : _dir.x * speedForce / airborneMovementReduction;
         horSpeed = _leftWallCheck.IsColliding && _dir.x < 0 ? 0 : horSpeed;
@@ -112,58 +210,64 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _rb.velocity += Vector3.down * fallMultiplier;
     }
 
-    private void OnWalk(InputAction.CallbackContext context)
+    private void EditModeUpdates()
     {
-        _dir = context.ReadValue<Vector2>();
-    }
-
-    private void OnStop(InputAction.CallbackContext context)
-    {
-        _dir = Vector2.zero;
-    }
-
-    public void OnPlaymodeEnd()
-    {
-        _rb.velocity = Vector3.zero;
-        walkMap.Disable();
-        jumpMap.Disable();
-        StartCoroutine(Zoom(editModePos.transform));
-    }
-    
-    public void OnPlaymodeStart()
-    {
-        StartCoroutine(Zoom(playModePos.transform));
-        walkMap.Enable();
-        jumpMap.Enable();
-    }
-    
-    private void OnJump(InputAction.CallbackContext context)
-    {
-        if(_groundCheck.IsColliding)
-            _rb.AddForce(new Vector3(0, jumpForce, 0));
-        
-        if(_leftWallCheck.IsColliding)
-            _rb.AddForce(new Vector3(0, jumpForce, directionalJumpForce));
-        
-        if(_rightWallCheck.IsColliding)
-            _rb.AddForce(new Vector3(0, jumpForce, -directionalJumpForce));
-    }
-
-    private IEnumerator Zoom(Transform targetTransform)
-    {
-        var time = 0.0f;
         var camTransform = _cam.transform;
-        var currentCamPos = camTransform.position;
-        var currentCamRot = camTransform.rotation;
-        
-        while (time < timeToZoom)
+        var newPos = camTransform.position;
+        newPos.y += _dir.y * cameraEditModeSpeed; 
+        newPos.z += _dir.x * cameraEditModeSpeed;
+        camTransform.position = newPos;
+    }
+
+    private void ToggleModeInputs(bool playMode)
+    {
+        if (playMode)
         {
-            camTransform.position = Vector3.Lerp(currentCamPos, targetTransform.position, 1 / timeToZoom * time);
-            camTransform.rotation = Quaternion.Lerp(currentCamRot, targetTransform.rotation, 1 / timeToZoom * time);
-            time += Time.deltaTime;
-            yield return null;
+            foreach (var playModeInputMap in playModeInputMaps)
+            {
+                playModeInputMap.Enable();
+            }
+
+            foreach (var editModeMap in editModeMaps)
+            {
+                editModeMap.Disable();
+            }
+            
+            return;
+        }
+        
+        foreach (var playModeInputMap in playModeInputMaps)
+        {
+            playModeInputMap.Disable();
         }
 
-        _editMode = !_editMode;
+        foreach (var editModeMap in editModeMaps)
+        {
+            editModeMap.Enable();
+        }
+    }
+
+    private void DisableAllInput()
+    {
+        foreach (var playModeInputMap in playModeInputMaps)
+        {
+            playModeInputMap.Disable();
+        }
+
+        foreach (var editModeMap in editModeMaps)
+        {
+            editModeMap.Disable();
+        }
+    }
+
+    private void debug(InputAction.CallbackContext context)
+    {
+        if (_editMode)
+        {
+            OnPlaymodeStart();
+            return;
+        }
+        
+        OnPlaymodeEnd();
     }
 }
