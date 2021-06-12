@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.UI;
+using Random = System.Random;
 
 public class PlayerMovementBehaviour : MonoBehaviour
 {
@@ -262,12 +263,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     private void debug(InputAction.CallbackContext context)
     {
-        if (_editMode)
-        {
-            OnPlaymodeStart();
-            return;
-        }
         
-        OnPlaymodeEnd();
     }
 }
