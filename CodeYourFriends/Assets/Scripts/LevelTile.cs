@@ -82,6 +82,11 @@ public class LevelTile : MonoBehaviour
         _renderer.material.color = _isPlaced ? Color.green : Color.gray;
     }
 
+    public bool IsLocked()
+    {
+        return _locked;
+    }
+
     private void MouseReleased()
     {
         if(_locked) return;
@@ -94,7 +99,6 @@ public class LevelTile : MonoBehaviour
         var currentPos = CurrentPos();
         int x, y;
         gridManager.PositionToGridCoords(currentPos, out x, out y);
-        Debug.Log("try place " + x + " " + y);
         gridManager.PlaceTile(x, y, this); //checks if we can place the tile
     }
 
@@ -107,15 +111,16 @@ public class LevelTile : MonoBehaviour
             if(c.collider == _collider)
             {
                 //user clicked on our own collider
+                var currentPos = CurrentPos();
+                int x, y;
+                gridManager.PositionToGridCoords(currentPos, out x, out y);
+                if(_isPlaced && !gridManager.CanRemoveTile(x, y)) break;
+
                 _dragging = true;
                 _renderer.material.color = Color.white;
 
-                var currentPos = CurrentPos();
-
                 _grabOffset = currentPos - transform.position;
 
-                int x, y;
-                gridManager.PositionToGridCoords(currentPos, out x, out y);
                 gridManager.RemoveTile(x, y);
 
                 break;
@@ -133,12 +138,10 @@ public class LevelTile : MonoBehaviour
 
         if(gridManager.CanPlaceTile(x, y))
         {
-            Debug.Log("can place at " + x + " " + y + ": true");
             transform.position = gridManager.GridCoordsToPosition(x, y);
         }
         else
         {
-            Debug.Log("can place at " + x + " " + y + ": false");
             transform.position = currentPos - _grabOffset;
         }
     }
