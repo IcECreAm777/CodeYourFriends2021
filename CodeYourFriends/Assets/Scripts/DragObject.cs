@@ -33,7 +33,6 @@ public class DragObject : MonoBehaviour
         mouseButtonDown = mouseInputController.mouseButtonDown;
         collidersUnderMouse = mouseInputController.collidersUnderMouse;
 
-        //Debug.Log(mousePosition);
 
         Ray ray = Camera.main.ScreenPointToRay(mousePosition);
 
@@ -42,27 +41,14 @@ public class DragObject : MonoBehaviour
         intersection = ray.origin + factor * ray.direction;
 
         mouseDrag();
-        //if (collidersUnderMouse.Length > 0) Debug.Log("I'm over something");
     }
 
     private void mouseDrag()
     {
-        if (mouseButtonDown && collidersUnderMouse.Length > 0 /*&& collidersUnderMouse[0].collider == gameObject.*/)
+        if (mouseButtonDown && collidersUnderMouse.Length > 0)
         {
             var currentPos = intersection;
             transform.position = new Vector3(Mathf.Round(currentPos.x), Mathf.Round(currentPos.y), Mathf.Round(currentPos.z));
         }
-    }
-
-    private Vector3 GetMouseWorldPos()
-    {
-        Vector3 mousePoint = mousePosition;
-        mousePoint.z = mZCoord;
-
-        return Camera.main.ScreenToWorldPoint(mousePoint);
-    }
-    private void OnMouseDrag()
-    {
-        transform.position = GetMouseWorldPos() + mOffset;
     }
 }
