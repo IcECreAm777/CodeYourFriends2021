@@ -54,8 +54,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     protected void Awake()
     {
-        walkMap.Enable();
-        jumpMap.Enable();
+        // walkMap.Enable();
+        // jumpMap.Enable();
 
         foreach (var action in walkMap)
         {
@@ -111,9 +111,22 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _dir = Vector2.zero;
     }
 
+    public void OnPlaymodeEnd()
+    {
+        walkMap.Disable();
+        jumpMap.Disable();
+        _rb.velocity = Vector3.zero;
+    }
+    public void OnPlaymodeStart()
+    {
+        walkMap.Enable();
+        jumpMap.Enable();
+    }
     private void OnJump(InputAction.CallbackContext context)
     {
+        Debug.Log("Jump");
         if(_groundCheck.IsColliding)
+            Debug.Log("Grounded");
             _rb.AddForce(new Vector3(0, jumpForce, 0));
         
         if(_leftWallCheck.IsColliding)
