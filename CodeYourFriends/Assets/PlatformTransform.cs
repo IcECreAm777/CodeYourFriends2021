@@ -6,11 +6,21 @@ public class PlatformTransform : MonoBehaviour
 {
     [Header("Position")]
     [SerializeField]
-    private float yPosition;
+    private float yDelta;
     [SerializeField]
-    private float zPosition;
+    private float zDelta;
 
-    private Vector3 position;
+    [Header("MovementBounds")]
+    [SerializeField]
+    private float yBoundLower;
+    [SerializeField]
+    private float yBoundUpper;
+    [SerializeField]
+    private float zBoundLower;
+    [SerializeField]
+    private float zBoundUpper;
+
+    private Vector3 positionDelta;
 
     [Header("Rotation")]
     [SerializeField]
@@ -26,19 +36,27 @@ public class PlatformTransform : MonoBehaviour
 
     private void movePlatform()
     {
-        position = new Vector3(0, yPosition, zPosition);
-        transform.position += position;
+        positionDelta = new Vector3(0, yDelta, zDelta);
+
+        if (yBoundLower < transform.position.y && transform.position.y < yBoundUpper) transform.position += positionDelta;
+        if (transform.position.y >= yBoundUpper || transform.position.y <= yBoundLower)
+        {
+            yDelta *= -1;
+        }
+
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        yDelta /= 60;
+        zDelta /= 60;
     }
 
     // Update is called once per frame
     void Update()
     {
         rotateObject();
+        movePlatform();
     }
 }
