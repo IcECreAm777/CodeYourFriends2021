@@ -67,17 +67,19 @@ public class LevelTile : MonoBehaviour
     public void SetPlaced(bool placed)
     {
         _isPlaced = placed;
-        _renderer.material.color = placed ? Color.red : Color.gray;
+        _renderer.material.color = placed ? Color.green : Color.gray;
     }
 
     public void Lock()
     {
         _locked = true;
+        _renderer.material.color = Color.red;
     }
 
     public void Unlock()
     {
         _locked = false;
+        _renderer.material.color = _isPlaced ? Color.green : Color.gray;
     }
 
     private void MouseReleased()
@@ -131,10 +133,12 @@ public class LevelTile : MonoBehaviour
 
         if(gridManager.CanPlaceTile(x, y))
         {
+            Debug.Log("can place at " + x + " " + y + ": true");
             transform.position = gridManager.GridCoordsToPosition(x, y);
         }
         else
         {
+            Debug.Log("can place at " + x + " " + y + ": false");
             transform.position = currentPos - _grabOffset;
         }
     }
@@ -153,5 +157,6 @@ public class LevelTile : MonoBehaviour
         int y = 18;
         transform.position = gridManager.GridCoordsToPosition(x, y);
         gridManager.ForcePlaceTile(x, y, this);
+        Lock();
     }
 }

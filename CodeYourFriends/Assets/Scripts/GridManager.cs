@@ -47,8 +47,8 @@ public class GridManager : MonoBehaviour
         //there is at least one neighbouring tile
         if(x>0 && _grid[x-1, y] != null) return true;
         if(y>0 && _grid[x, y-1] != null) return true;
-        if(x<gridExtendZ-1 && _grid[x+1, y] != null) return true;
-        if(y<gridExtendY-1 && _grid[x, y+1] != null) return true;
+        if(x<(2*gridExtendZ-1) && _grid[x+1, y] != null) return true;
+        if(y<(2*gridExtendY-1) && _grid[x, y+1] != null) return true;
 
         return false;
     }
@@ -65,18 +65,6 @@ public class GridManager : MonoBehaviour
         ForcePlaceTile(x, y, tile);
     }
 
-    public void RemoveTile(LevelTile tile)
-    {
-        Debug.Log("try remove: " + tile);
-        for(int x = 0; x < gridExtendZ; ++x)
-        {
-            for(int y = 0; y < gridExtendY; ++y)
-            {
-                if(_grid[x, y] == tile)
-                    RemoveTile(x, y);
-            }
-        }
-    }
     public void RemoveTile(int x, int y)
     {
         _grid[x, y] = null;
