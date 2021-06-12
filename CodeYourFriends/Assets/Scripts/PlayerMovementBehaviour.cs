@@ -56,10 +56,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
     // non editor properties
     private Vector2 _dir;
     private bool _editMode = true;
-<<<<<<< Updated upstream
+
     private List<InputActionMap> playModeInputMaps;
     private List<InputActionMap> editModeMaps;
-=======
+
     private bool _firstPlayMode = true;
     private List<InputActionMap> _playModeInputMaps;
     private List<InputActionMap> _editModeMaps;
@@ -154,13 +154,11 @@ public class PlayerMovementBehaviour : MonoBehaviour
         walkMap.Enable();
         jumpMap.Enable();
         ToggleModeInputs(true);
-<<<<<<< Updated upstream
-=======
         transform.GetComponentInChildren<UfoBehaviour>().StartPointingToGoal();
+        
         if(!_firstPlayMode) return;
         playModeStarted.Invoke(playModeStartedMessage);
         _firstPlayMode = false;
->>>>>>> Stashed changes
     }
     
     private void OnJump(InputAction.CallbackContext context)
@@ -280,9 +278,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         }
         
         OnPlaymodeEnd();
-=======
         var yes = GetComponentInChildren<UfoBehaviour>();
         yes.BroadcastPopupMessage("test message", 5.0f);
->>>>>>> Stashed changes
     }
 }
