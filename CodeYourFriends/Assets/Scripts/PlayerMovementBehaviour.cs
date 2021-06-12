@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.UI;
 
@@ -36,7 +37,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
     [SerializeField]
     private InputAction debugAction;
 
-
     [Header("Camera Control")] 
     [SerializeField]
     private float timeToZoom = 1.0f;
@@ -46,12 +46,21 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private GameObject editModePos;
     [SerializeField]
     private GameObject playModePos;
+    
+    [Header("Event settings")]
+    [SerializeField]
+    private BroadcastUfoEvent playModeStarted;
+    [SerializeField]
+    private PopupScriptableObject playModeStartedMessage;
 
     // non editor properties
     private Vector2 _dir;
     private bool _editMode = true;
     private List<InputActionMap> playModeInputMaps;
     private List<InputActionMap> editModeMaps;
+    private bool _firstPlayMode = true;
+    private List<InputActionMap> _playModeInputMaps;
+    private List<InputActionMap> _editModeMaps;
 
     // components
     private Rigidbody _rb;
@@ -143,6 +152,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
         walkMap.Enable();
         jumpMap.Enable();
         ToggleModeInputs(true);
+        transform.GetComponentInChildren<UfoBehaviour>().StartPointingToGoal();
+        if(!_firstPlayMode) return;
+        playModeStarted.Invoke(playModeStartedMessage);
+        _firstPlayMode = false;
     }
     
     private void OnJump(InputAction.CallbackContext context)
@@ -262,5 +275,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
         }
         
         OnPlaymodeEnd();
+        var yes = GetComponentInChildren<UfoBehaviour>();
+        yes.BroadcastPopupMessage("test message", 5.0f);
+>>>>>>> Stashed changes
     }
 }
