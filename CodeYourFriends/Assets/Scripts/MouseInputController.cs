@@ -13,10 +13,13 @@ public class MouseInputController : MonoBehaviour
     private InputActionMap clickMap;
 
     public Vector2 mousePosition;
+    public RaycastHit[] collidersUnderMouse = new RaycastHit[10];
 
     void moveCursor(InputAction.CallbackContext context)
     {
         mousePosition = context.ReadValue<Vector2>();
+        var ray = Camera.main.ScreenPointToRay(mousePosition);
+        collidersUnderMouse= Physics.RaycastAll(ray, Mathf.Infinity);
     }
 
     public void leftClick(InputAction.CallbackContext context)

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 public class PlaymodeSwitch : MonoBehaviour
 {
@@ -13,13 +14,52 @@ public class PlaymodeSwitch : MonoBehaviour
     private UnityEvent playmodeEndEvent;
 
     private bool playing = false;
-    void Start() { }
+    private MouseInputController mouseInputController;
+    private Collider _collider;
+    private bool mouseHovering = false;
+    private void Start()
+    {
+        var player = GameObject.Find("Capsule");
+        mouseInputController = player.GetComponent<MouseInputController>();
 
-    void Update() { }
+        _collider = GetComponent<Collider>();
+        Debug.Log(_collider);
+    }
+
+    void Update()
+    {
+        bool hovered = false;
+        foreach(var result in mouseInputController.collidersUnderMouse)
+        {
+            if(result.collider == _collider)
+            {
+                hovered = true;
+                break;
+            }
+        }
+
+        if (hovered != mouseHovering)
+        {
+            mouseHovering = hovered;
+            if(hovered) OnMouseEnter();
+            else OnMouseExit();
+        }
+    }
+
+    private void OnMouseEnter() 
+    {
+        var rend = GetComponent<Renderer>();
+        rend.material.color = Color.red;
+    }
+
+    private void OnMouseExit()
+    {
+        var rend = GetComponent<Renderer>();
+        rend.material.color = Color.green;
+    }
 
     private void OnGUI()
     {
-        Debug.Log("GUI");
         string txt = playing ? "Stop!" : "Play1";
         if(GUI.Button(new Rect(30, 30, 150, 200), txt))
         {
@@ -28,22 +68,4 @@ public class PlaymodeSwitch : MonoBehaviour
         }
     }
 
-    void OnMouseEnter()
-    {
-        Debug.Log("mouseEnter");
-        var rend = GetComponent<Renderer>();
-        rend.material.color = Color.red;
-    }
-
-    void OnMouseOver()
-    {
-        Debug.Log("mouseOver");
-    }
-
-    void OnMouseExit()
-    {
-        Debug.Log("mouseExit");
-        var rend = GetComponent<Renderer>();
-        rend.material.color = Color.gray;
-    }
 }
