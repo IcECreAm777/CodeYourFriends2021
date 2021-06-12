@@ -51,8 +51,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
     // non editor properties
     private Vector2 _dir;
     private bool _editMode = true;
-    private List<InputActionMap> playModeInputMaps;
-    private List<InputActionMap> editModeMaps;
+    private List<InputActionMap> _playModeInputMaps;
+    private List<InputActionMap> _editModeMaps;
 
     // components
     private Rigidbody _rb;
@@ -66,12 +66,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     protected void Awake()
     {
-        playModeInputMaps = new List<InputActionMap>()
+        _playModeInputMaps = new List<InputActionMap>()
         {
             walkMap, jumpMap
         };
 
-        editModeMaps = new List<InputActionMap>()
+        _editModeMaps = new List<InputActionMap>()
         {
             camMoveMap
         };
@@ -217,12 +217,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         if (playMode)
         {
-            foreach (var playModeInputMap in playModeInputMaps)
+            foreach (var playModeInputMap in _playModeInputMaps)
             {
                 playModeInputMap.Enable();
             }
 
-            foreach (var editModeMap in editModeMaps)
+            foreach (var editModeMap in _editModeMaps)
             {
                 editModeMap.Disable();
             }
@@ -230,12 +230,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
             return;
         }
         
-        foreach (var playModeInputMap in playModeInputMaps)
+        foreach (var playModeInputMap in _playModeInputMaps)
         {
             playModeInputMap.Disable();
         }
 
-        foreach (var editModeMap in editModeMaps)
+        foreach (var editModeMap in _editModeMaps)
         {
             editModeMap.Enable();
         }
@@ -243,12 +243,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     private void DisableAllInput()
     {
-        foreach (var playModeInputMap in playModeInputMaps)
+        foreach (var playModeInputMap in _playModeInputMaps)
         {
             playModeInputMap.Disable();
         }
 
-        foreach (var editModeMap in editModeMaps)
+        foreach (var editModeMap in _editModeMaps)
         {
             editModeMap.Disable();
         }
