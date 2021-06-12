@@ -41,14 +41,29 @@ public class GridManager : MonoBehaviour
 
     public bool CanRemoveTile(int x, int y)
     {
+        Debug.Log("CAN REMOVE " + x + " " + y + " ?");
         //check if by removing this tile, all neighbours are still connected to any locked tile
-        bool b = true;
-        if(x<(2*gridExtendZ-1) && !IsConnectedToLockedTile(x+1, y, x, y)) b = false;
-        if(y<(2*gridExtendY-1) && !IsConnectedToLockedTile(x, y+1, x, y)) b = false;
-        if(x>0 && !IsConnectedToLockedTile(x-1, y, x, y)) b = false;
-        if(y>0 && !IsConnectedToLockedTile(x, y-1, x, y)) b = false;
-        Debug.Log("VISITED: " + b);
-        return b;
+        if(x<(2*gridExtendZ-1) && !IsConnectedToLockedTile(x+1, y, x, y))
+        {
+            Debug.Log("VISITED: false after 1st");
+            return false;
+        }
+        if(y<(2*gridExtendY-1) && !IsConnectedToLockedTile(x, y+1, x, y))
+        {
+            Debug.Log("VISITED: false after 2nd");
+            return false;
+        }
+        if(x>0 && !IsConnectedToLockedTile(x-1, y, x, y))
+        {
+            Debug.Log("VISITED: false after 3rd");
+            return false;
+        }
+        if(y>0 && !IsConnectedToLockedTile(x, y-1, x, y))
+        {
+            Debug.Log("VISITED: false after 4th");
+            return false;
+        }
+        return true;
     }
 
     private bool IsConnectedToLockedTile(int x, int y, int ignoreX, int ignoreY)
@@ -64,6 +79,7 @@ public class GridManager : MonoBehaviour
     {
         Debug.Log("visited ? " + x + " " + y);
         if(_grid[x, y] == null) return false; //an empty space does not count as connection point
+        if(_grid[x, y].IsLocked()) Debug.Log("found a locked tile");
         if(_grid[x, y].IsLocked()) return true; //locked tiles are endpoints
 
         if(visited[x, y]) return false; //already visited this node, skip

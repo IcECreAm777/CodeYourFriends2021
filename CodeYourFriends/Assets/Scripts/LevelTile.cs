@@ -108,23 +108,25 @@ public class LevelTile : MonoBehaviour
 
         foreach(var c in mouseInputController.collidersUnderMouse)
         {
-            if(c.collider == _collider)
-            {
-                //user clicked on our own collider
-                var currentPos = CurrentPos();
-                int x, y;
-                gridManager.PositionToGridCoords(currentPos, out x, out y);
-                if(_isPlaced && !gridManager.CanRemoveTile(x, y)) break;
+            if(c.collider.gameObject.GetComponent<LevelTile>() == null) continue;
 
-                _dragging = true;
-                _renderer.material.color = Color.white;
+            //we found the first LevelTile. check if it's us
+            if(c.collider != _collider) break;
 
-                _grabOffset = currentPos - transform.position;
+            //user clicked on our own collider
+            var currentPos = CurrentPos();
+            int x, y;
+            gridManager.PositionToGridCoords(currentPos, out x, out y);
+            if(_isPlaced && !gridManager.CanRemoveTile(x, y)) break;
 
-                gridManager.RemoveTile(x, y);
+            _dragging = true;
+            _renderer.material.color = Color.white;
 
-                break;
-            }
+            _grabOffset = currentPos - transform.position;
+
+            if(_isPlaced) gridManager.RemoveTile(x, y);
+
+            break;
         }
     }
 
