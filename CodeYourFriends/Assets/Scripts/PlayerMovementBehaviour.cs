@@ -104,6 +104,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _rightWallCheck = transform.Find("RightWallCheck").GetComponent<GetCollisionScript>();
 
         _cam = Camera.main;
+
+        OnPlaymodeStart();
     }
 
     protected void FixedUpdate()
