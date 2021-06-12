@@ -20,6 +20,8 @@ public class DragObject : MonoBehaviour
 
     private Vector3 intersection;
 
+    private bool dragOn;
+
     private void Start()
     {
         player = GameObject.Find("Capsule");
@@ -40,15 +42,19 @@ public class DragObject : MonoBehaviour
 
         intersection = ray.origin + factor * ray.direction;
 
-        mouseDrag();
+        if (mouseButtonDown && collidersUnderMouse.Length > 0) dragOn = true;
+
+        if (dragOn)
+        {
+            mouseDrag();
+        }
+
+        if (!mouseButtonDown) dragOn = false;
     }
 
     private void mouseDrag()
     {
-        if (mouseButtonDown && collidersUnderMouse.Length > 0)
-        {
-            var currentPos = intersection;
-            transform.position = new Vector3(Mathf.Round(currentPos.x), Mathf.Round(currentPos.y), Mathf.Round(currentPos.z));
-        }
+        var currentPos = intersection;
+        transform.position = new Vector3(Mathf.Round(currentPos.x), Mathf.Round(currentPos.y), Mathf.Round(currentPos.z));
     }
 }
