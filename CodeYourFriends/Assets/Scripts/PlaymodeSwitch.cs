@@ -28,7 +28,7 @@ public class PlaymodeSwitch : MonoBehaviour
         mouseInputController = player.GetComponent<MouseInputController>();
 
         _collider = GetComponent<Collider>();
-        Debug.Log(_collider);
+        GetComponent<Renderer>().material.color = Color.yellow;
     }
 
     void Update()
@@ -68,7 +68,7 @@ public class PlaymodeSwitch : MonoBehaviour
     {
         //TODO: effect for mouse hovering stopped
         var rend = GetComponent<Renderer>();
-        rend.material.color = playing ? Color.green : Color.gray;
+        rend.material.color = playing ? Color.green : Color.yellow;
     }
     
     private void OnMouseClicked()

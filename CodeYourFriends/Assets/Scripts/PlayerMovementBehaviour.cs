@@ -49,7 +49,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     // non editor properties
     private Vector2 _dir;
-    private bool _editMode;
+    private bool _editMode = true;
     private List<InputActionMap> playModeInputMaps;
     private List<InputActionMap> editModeMaps;
 
@@ -65,9 +65,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     protected void Awake()
     {
-        // walkMap.Enable();
-        // jumpMap.Enable();
-
         playModeInputMaps = new List<InputActionMap>()
         {
             walkMap, jumpMap
@@ -107,11 +104,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
         _cam = Camera.main;
 
-        if (_cam is null) return;
-        transform.Find("CamPlayModePos").position = _cam.transform.position;
-        transform.Find("CamPlayModePos").rotation = _cam.transform.rotation;
-        
-        OnPlaymodeStart();
+        OnPlaymodeEnd();
     }
 
     protected void FixedUpdate()
