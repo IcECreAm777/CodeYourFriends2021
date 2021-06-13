@@ -9,9 +9,9 @@ public class PlaymodeSwitch : MonoBehaviour
 
     [Header("Event settings")]
     [SerializeField]
-    private UnityEvent playmodeStartEvent;
+    public UnityEvent playmodeStartEvent;
     [SerializeField]
-    private UnityEvent playmodeEndEvent;
+    public UnityEvent playmodeEndEvent;
 
     private bool playing = false;
 
@@ -29,6 +29,8 @@ public class PlaymodeSwitch : MonoBehaviour
 
         _collider = GetComponent<Collider>();
         GetComponent<Renderer>().material.color = Color.yellow;
+
+        PlayModeStart();
     }
 
     void Update()
@@ -80,13 +82,19 @@ public class PlaymodeSwitch : MonoBehaviour
 
     public void PlayModeStart()
     {
+        Debug.Log("---- 01 ");
         playmodeStartEvent.Invoke();
+        Debug.Log("---- 02 ");
         playing = true;
+        Debug.Log("---- 03 ");
     }
 
     public void EditModeStart()
     {
+        Debug.Log("xxxx 01 ");
         playmodeEndEvent.Invoke();
+        Debug.Log("xxxx 02 ");
         playing = false;
+        Debug.Log("xxxx 03 ");
     }
 }
