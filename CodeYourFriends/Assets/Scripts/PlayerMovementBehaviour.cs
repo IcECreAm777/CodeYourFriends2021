@@ -27,6 +27,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private float walledGlidingSpeed = .5f;
     [SerializeField] 
     private float walledMaxGlidingSpeed = 2.0f;
+    [SerializeField]
+    public DeathPlane deathPlane;
+    [SerializeField]
+    public GridManager gridManager;
 
     [Header("Input Actions")]
     [SerializeField]
@@ -130,8 +134,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _rightWallCheck = transform.Find("RightWallCheck").GetComponent<GetCollisionScript>();
 
         _cam = Camera.main;
-
-        OnPlaymodeStart();
     }
 
     protected void FixedUpdate()
@@ -184,6 +186,28 @@ public class PlayerMovementBehaviour : MonoBehaviour
         //TODO make it as coroutine and fade out
         transform.position = _start.GetSpawnPosition();
         gameObject.GetComponent<MeshRenderer>().forceRenderingOff = false;
+        SpawnDeathPlane();
+    }
+
+
+    private void SpawnDeathPlane()
+    {
+        Debug.Log(gridManager);
+        LevelTile[,] _grid = gridManager._grid;
+
+        for (int i = 0; i < _grid.GetLength(0); i++)
+        {
+            for (int j = 0; j < _grid.GetLength(1); j++)
+            {
+                if (!_grid[i, j].Equals(""))
+                {
+
+                    Vector3 newPosition = gridManager.GridCoordsToPosition(i, j);
+                    newPosition.y -= 25;
+                    deathPlane.transform.position = newPosition;
+                }
+            }
+        }
     }
     
     private void OnJump(InputAction.CallbackContext context)
