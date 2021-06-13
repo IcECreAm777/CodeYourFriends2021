@@ -36,6 +36,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
     [SerializeField]
     private InputActionMap camMoveMap;
     [SerializeField]
+    private InputActionMap restartLevelMap;
+    [SerializeField]
+    private InputActionMap enableEditModeMap;
+    [SerializeField]
     private InputAction debugAction;
 
     [Header("Camera Control")] 
@@ -62,6 +66,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private List<InputActionMap> _playModeInputMaps;
     private List<InputActionMap> _editModeMaps;
 
+    private PlaymodeSwitch _start;
+
     // components
     private Rigidbody _rb;
     private CapsuleCollider _collider;
@@ -74,9 +80,11 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     protected void Awake()
     {
+        _start = FindObjectOfType<PlaymodeSwitch>();
+        
         _playModeInputMaps = new List<InputActionMap>()
         {
-            walkMap, jumpMap
+            walkMap, jumpMap, restartLevelMap, enableEditModeMap
         };
 
         _editModeMaps = new List<InputActionMap>()
@@ -102,6 +110,16 @@ public class PlayerMovementBehaviour : MonoBehaviour
         {
             action.performed += OnWalk;
             action.canceled += OnStop;
+        }
+
+        foreach (var action in restartLevelMap)
+        {
+            action.performed += OnRestart;
+        }
+
+        foreach (var action in enableEditModeMap)
+        {
+            action.performed += OnEnableEditMode;
         }
 
         _rb = GetComponent<Rigidbody>();
@@ -140,6 +158,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
     public void OnPlaymodeEnd()
     {
         _rb.velocity = Vector3.zero;
+        _rb.useGravity = false;
         walkMap.Disable();
         jumpMap.Disable();
         StartCoroutine(Zoom(editModePos.transform, true));
@@ -149,15 +168,21 @@ public class PlayerMovementBehaviour : MonoBehaviour
     
     public void OnPlaymodeStart()
     {
+        _rb.useGravity = true;
         StartCoroutine(Zoom(playModePos.transform, false));
-        walkMap.Enable();
-        jumpMap.Enable();
         ToggleModeInputs(true);
         transform.GetComponentInChildren<UfoBehaviour>().StartPointingToGoal();
+        RestartLevel();
 
         if(!_firstPlayMode) return;
         playModeStarted.Invoke(playModeStartedMessage);
         _firstPlayMode = false;
+    }
+
+    public void RestartLevel()
+    {
+        //TODO make it as coroutine and fade out
+        transform.position = _start.GetSpawnPosition();
     }
     
     private void OnJump(InputAction.CallbackContext context)
@@ -170,6 +195,16 @@ public class PlayerMovementBehaviour : MonoBehaviour
         
         if(_rightWallCheck.IsColliding)
             _rb.AddForce(new Vector3(0, jumpForce, -directionalJumpForce));
+    }
+
+    private void OnRestart(InputAction.CallbackContext context)
+    {
+        RestartLevel();
+    }
+
+    private void OnEnableEditMode(InputAction.CallbackContext context)
+    {
+        _start.EditModeStart();
     }
 
     private IEnumerator Zoom(Transform targetTransform, bool editMode)
