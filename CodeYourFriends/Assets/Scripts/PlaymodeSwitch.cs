@@ -6,7 +6,10 @@ using UnityEngine.InputSystem;
 
 public class PlaymodeSwitch : MonoBehaviour
 {
-
+    [Header("Player Spawn")] 
+    [SerializeField]
+    private GameObject spawnPoint;
+    
     [Header("Event settings")]
     [SerializeField]
     private UnityEvent playmodeStartEvent;
@@ -88,5 +91,10 @@ public class PlaymodeSwitch : MonoBehaviour
     {
         playmodeEndEvent.Invoke();
         playing = false;
+    }
+
+    public Vector3 GetSpawnPosition()
+    {
+        return spawnPoint.transform.position;
     }
 }
