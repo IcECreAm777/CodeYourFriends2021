@@ -183,6 +183,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         //TODO make it as coroutine and fade out
         transform.position = _start.GetSpawnPosition();
+        gameObject.GetComponent<MeshRenderer>().forceRenderingOff = false;
     }
     
     private void OnJump(InputAction.CallbackContext context)
