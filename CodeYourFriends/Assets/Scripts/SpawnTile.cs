@@ -28,12 +28,14 @@ public class SpawnTile : MonoBehaviour
 
     public void SpawnTiles(Vector3 spawnPoint)
     {
-        Debug.Log("SPAWN TILES");
+        // Debug.Log("SPAWN TILES");
         for (var i = 0; i < numTiles; i++)
         {
             var collectionIndex = Random.Range(0, tileCollections.Count);
             var tileIndex = Random.Range(0, tileCollections[collectionIndex].tiles.Count);
             var outer = Instantiate(tileCollider);
+            // Debug.Log(collectionIndex + " " + tileIndex);
+            // Debug.Log(tileCollections[collectionIndex].tiles[tileIndex].geometry);
             Instantiate(tileCollections[collectionIndex].tiles[tileIndex].geometry, outer.transform, true);
             outer.transform.position = spawnPoint;
             var tileScript = outer.AddComponent<LevelTile>();
@@ -44,7 +46,7 @@ public class SpawnTile : MonoBehaviour
 
     private void SpawnInitialTiles(Vector3 spawnPoint)
     {
-        Debug.Log("SPAWN INITIAL TILES");
+        // Debug.Log("SPAWN INITIAL TILES");
         var gm = FindObjectOfType<GridManager>();
         gm.InitGrid();
         int origX, origY;
