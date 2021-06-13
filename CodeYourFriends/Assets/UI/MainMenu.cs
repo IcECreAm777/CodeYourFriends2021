@@ -10,4 +10,9 @@ public class MainMenu : MonoBehaviour
     {
         SceneManager.LoadScene("Tutturial dialoge test");
     }
+    //go to the actual game from tutorial
+    private void OnTriggerEnter(Collider other)
+    {
+        SceneManager.LoadScene("SnappingTestScene");
+    }
 }
