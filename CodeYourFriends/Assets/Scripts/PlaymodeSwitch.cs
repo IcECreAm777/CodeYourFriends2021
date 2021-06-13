@@ -8,7 +8,7 @@ public class PlaymodeSwitch : MonoBehaviour
 {
     [Header("Player Spawn")] 
     [SerializeField]
-    private GameObject spawnPoint;
+    public GameObject spawnPoint;
     
     [Header("Event settings")]
     [SerializeField]
