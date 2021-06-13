@@ -270,9 +270,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     private void debug(InputAction.CallbackContext context)
     {
-        OnPlaymodeEnd();
+        //OnPlaymodeEnd();
         var yes = GetComponentInChildren<UfoBehaviour>();
-        yes.BroadcastPopupMessage("test message", 5.0f);
-
+        yes.BroadcastPopupMessage(playModeStartedMessage.message, 5.0f);
     }
 }
