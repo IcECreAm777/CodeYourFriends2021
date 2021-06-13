@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class LevelTile : MonoBehaviour
 {
@@ -18,6 +19,11 @@ public class LevelTile : MonoBehaviour
     private MouseInputController mouseInputController;
     private GridManager gridManager;
 
+    private Texture2D _texPlaced;
+    private Texture2D _texLocked;
+    private Texture2D _texMovable;
+    private GameObject _texPlane;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,7 +35,37 @@ public class LevelTile : MonoBehaviour
 
         gridManager = FindObjectOfType<GridManager>();
 
+        _texPlaced = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets/UI/UI images/grid-overlay-alt-green.png", typeof(Texture2D));
+        _texLocked = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets/UI/UI images/grid-overlay-alt.png", typeof(Texture2D));
+        _texMovable = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets/UI/UI images/grid-overlay-alt-gray.png", typeof(Texture2D));
         // OnPlaymodeStart(); //TODO: change depending on if we start in playmode or not
+
+        _texPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
+        _texPlane.transform.parent = transform;
+        _texPlane.transform.localPosition = new Vector3(-1, 12.5f, 12.5f); //slightly behind
+        _texPlane.transform.localScale = new Vector3(2.5f, 1, 2.5f);
+        _texPlane.transform.localRotation = Quaternion.Euler(0, 0, -90);
+        _texPlane.GetComponent<Collider>().enabled = false;
+
+        UpdateTexture();
+    }
+
+    void UpdateTexture()
+    {
+        if(_playmode)
+        {
+            _texPlane.SetActive(false);
+            return;
+        }
+        _texPlane.SetActive(true);
+        var rend = _texPlane.GetComponent<Renderer>();
+        if(_locked)
+            rend.material.mainTexture = _texLocked;
+        else if(_isPlaced)
+            rend.material.mainTexture = _texPlaced;
+        else
+            rend.material.mainTexture = _texMovable;
+        
     }
 
     // Update is called once per frame
@@ -70,6 +106,7 @@ public class LevelTile : MonoBehaviour
 
 
         _playmode = true;
+        UpdateTexture();
     }
 
     public void OnPlaymodeEnd()
@@ -80,6 +117,7 @@ public class LevelTile : MonoBehaviour
             gameObject.transform.GetChild(i).gameObject.SetActive(true);
         }
         _playmode = false;
+        UpdateTexture();
     }
 
     public void SetPlaced(bool placed)
@@ -87,6 +125,7 @@ public class LevelTile : MonoBehaviour
         Debug.Log("set placed " + placed + " " + gameObject);
         _isPlaced = placed;
         // _renderer.material.color = placed ? Color.green : Color.gray;
+        UpdateTexture();
     }
 
     public void LockTile()
@@ -98,12 +137,14 @@ public class LevelTile : MonoBehaviour
         {
             gameObject.transform.GetChild(i).gameObject.SetActive(true);
         }
+        UpdateTexture();
     }
 
     public void UnlockTile()
     {
         _locked = false;
         // _renderer.material.color = _isPlaced ? Color.green : Color.gray;
+        UpdateTexture();
     }
 
     public bool IsTileLocked()
