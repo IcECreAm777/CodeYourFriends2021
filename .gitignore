@@ -62,3 +62,4 @@ CodeYourFriends/.idea/
 *.vsconfig
 .vscode/
 CodeYourFriends/Assets/Scenes/SampleScene.unity
+CodeYourFriends/UserSettings/EditorUserSettings.asset
