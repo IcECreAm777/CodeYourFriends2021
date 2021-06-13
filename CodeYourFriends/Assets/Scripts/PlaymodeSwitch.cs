@@ -78,4 +78,15 @@ public class PlaymodeSwitch : MonoBehaviour
         playing = !playing;
     }
 
+    public void PlayModeStart()
+    {
+        playmodeStartEvent.Invoke();
+        playing = true;
+    }
+
+    public void EditModeStart()
+    {
+        playmodeEndEvent.Invoke();
+        playing = false;
+    }
 }

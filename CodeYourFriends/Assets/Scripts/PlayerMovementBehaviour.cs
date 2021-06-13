@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering.UI;
+using Random = System.Random;
 
 public class PlayerMovementBehaviour : MonoBehaviour
 {
@@ -57,9 +58,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private Vector2 _dir;
     private bool _editMode = true;
 
-    private List<InputActionMap> playModeInputMaps;
-    private List<InputActionMap> editModeMaps;
-
     private bool _firstPlayMode = true;
     private List<InputActionMap> _playModeInputMaps;
     private List<InputActionMap> _editModeMaps;
@@ -76,12 +74,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     protected void Awake()
     {
-        playModeInputMaps = new List<InputActionMap>()
+        _playModeInputMaps = new List<InputActionMap>()
         {
             walkMap, jumpMap
         };
 
-        editModeMaps = new List<InputActionMap>()
+        _editModeMaps = new List<InputActionMap>()
         {
             camMoveMap
         };
@@ -115,7 +113,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
         _cam = Camera.main;
 
-        OnPlaymodeEnd();
+        OnPlaymodeStart();
     }
 
     protected void FixedUpdate()
@@ -146,6 +144,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         jumpMap.Disable();
         StartCoroutine(Zoom(editModePos.transform, true));
         ToggleModeInputs(false);
+        transform.GetComponentInChildren<UfoBehaviour>().StopPointingToGoal();
     }
     
     public void OnPlaymodeStart()
@@ -155,7 +154,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         jumpMap.Enable();
         ToggleModeInputs(true);
         transform.GetComponentInChildren<UfoBehaviour>().StartPointingToGoal();
-        
+
         if(!_firstPlayMode) return;
         playModeStarted.Invoke(playModeStartedMessage);
         _firstPlayMode = false;
@@ -232,12 +231,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         if (playMode)
         {
-            foreach (var playModeInputMap in playModeInputMaps)
+            foreach (var playModeInputMap in _playModeInputMaps)
             {
                 playModeInputMap.Enable();
             }
 
-            foreach (var editModeMap in editModeMaps)
+            foreach (var editModeMap in _editModeMaps)
             {
                 editModeMap.Disable();
             }
@@ -245,12 +244,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
             return;
         }
         
-        foreach (var playModeInputMap in playModeInputMaps)
+        foreach (var playModeInputMap in _playModeInputMaps)
         {
             playModeInputMap.Disable();
         }
 
-        foreach (var editModeMap in editModeMaps)
+        foreach (var editModeMap in _editModeMaps)
         {
             editModeMap.Enable();
         }
@@ -258,12 +257,12 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     private void DisableAllInput()
     {
-        foreach (var playModeInputMap in playModeInputMaps)
+        foreach (var playModeInputMap in _playModeInputMaps)
         {
             playModeInputMap.Disable();
         }
 
-        foreach (var editModeMap in editModeMaps)
+        foreach (var editModeMap in _editModeMaps)
         {
             editModeMap.Disable();
         }
@@ -271,14 +270,9 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     private void debug(InputAction.CallbackContext context)
     {
-        if (_editMode)
-        {
-            OnPlaymodeStart();
-            return;
-        }
-        
         OnPlaymodeEnd();
         var yes = GetComponentInChildren<UfoBehaviour>();
         yes.BroadcastPopupMessage("test message", 5.0f);
+
     }
 }
