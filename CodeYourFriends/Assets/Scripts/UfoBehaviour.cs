@@ -63,6 +63,7 @@ public class UfoBehaviour : MonoBehaviour
             var ufoPos = direction.normalized * ufoDist;
             ufoPos.x = offsetX;
             transform.position = parentPosition + ufoPos;
+            transform.LookAt(_goal.transform);
             yield return null;
         }
     }
