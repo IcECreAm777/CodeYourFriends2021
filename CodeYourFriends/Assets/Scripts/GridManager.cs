@@ -41,26 +41,26 @@ public class GridManager : MonoBehaviour
 
     public bool CanRemoveTile(int x, int y)
     {
-        Debug.Log("CAN REMOVE " + x + " " + y + " ?");
+        // Debug.Log("CAN REMOVE " + x + " " + y + " ?");
         //check if by removing this tile, all neighbours are still connected to any locked tile
         if(x<(2*gridExtendZ-1) && !IsConnectedToLockedTile(x+1, y, x, y))
         {
-            Debug.Log("VISITED: false after 1st");
+            // Debug.Log("VISITED: false after 1st");
             return false;
         }
         if(y<(2*gridExtendY-1) && !IsConnectedToLockedTile(x, y+1, x, y))
         {
-            Debug.Log("VISITED: false after 2nd");
+            // Debug.Log("VISITED: false after 2nd");
             return false;
         }
         if(x>0 && !IsConnectedToLockedTile(x-1, y, x, y))
         {
-            Debug.Log("VISITED: false after 3rd");
+            // Debug.Log("VISITED: false after 3rd");
             return false;
         }
         if(y>0 && !IsConnectedToLockedTile(x, y-1, x, y))
         {
-            Debug.Log("VISITED: false after 4th");
+            // Debug.Log("VISITED: false after 4th");
             return false;
         }
         return true;
@@ -68,7 +68,7 @@ public class GridManager : MonoBehaviour
 
     private bool IsConnectedToLockedTile(int x, int y, int ignoreX, int ignoreY)
     {
-        Debug.Log("START FROM ? " + x + " " + y);
+        // Debug.Log("START FROM ? " + x + " " + y);
         if(_grid[x, y] == null) return true;
         var visited = new bool[2*gridExtendY, 2*gridExtendZ];
         visited[ignoreX,ignoreY] = true; //this will ignore the tile in question
@@ -77,9 +77,9 @@ public class GridManager : MonoBehaviour
 
     private bool IsConnectedToLockedTile(int x, int y, bool[,] visited)
     {
-        Debug.Log("visited ? " + x + " " + y);
+        // Debug.Log("visited ? " + x + " " + y);
         if(_grid[x, y] == null) return false; //an empty space does not count as connection point
-        if(_grid[x, y].IsLocked()) Debug.Log("found a locked tile");
+        // if(_grid[x, y].IsLocked()) Debug.Log("found a locked tile");
         if(_grid[x, y].IsLocked()) return true; //locked tiles are endpoints
 
         if(visited[x, y]) return false; //already visited this node, skip
@@ -127,6 +127,7 @@ public class GridManager : MonoBehaviour
 
     public void RemoveTile(int x, int y)
     {
+        if(_grid[x, y] != null) _grid[x, y].SetPlaced(false);
         _grid[x, y] = null;
         Debug.Log("REMOVED: x:" + x + " y: " + y);
     }

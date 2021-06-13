@@ -13,7 +13,7 @@ public class LevelTile : MonoBehaviour
     private bool _lastMouseDown = false;
 
     //COMPONENTS
-    private Collider _collider;
+    // private Collider _collider;
     // private Renderer _renderer;
     private MouseInputController mouseInputController;
     private GridManager gridManager;
@@ -21,7 +21,7 @@ public class LevelTile : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _collider = GetComponent<Collider>();
+        // _collider = GetComponent<Collider>();
         // _renderer = GetComponent<Renderer>();
 
         var player = GameObject.Find("Capsule");
@@ -58,20 +58,23 @@ public class LevelTile : MonoBehaviour
     public void OnPlaymodeStart()
     {
         MouseReleased(); //drop tile if dragging
-        _collider.enabled = _isPlaced;
+        // _collider.enabled = _isPlaced;
         if(!_isPlaced)
         {
+            Debug.Log("hiding " + gameObject);
             for(int i = 0; i < gameObject.transform.childCount; ++i)
             {
                 gameObject.transform.GetChild(i).gameObject.SetActive(false);
             }
         }
+
+
         _playmode = true;
     }
 
     public void OnPlaymodeEnd()
     {
-        _collider.enabled = true;
+        // _collider.enabled = true;
         for(int i = 0; i < gameObject.transform.childCount; ++i)
         {
             gameObject.transform.GetChild(i).gameObject.SetActive(true);
@@ -81,6 +84,7 @@ public class LevelTile : MonoBehaviour
 
     public void SetPlaced(bool placed)
     {
+        Debug.Log("set placed " + placed + " " + gameObject);
         _isPlaced = placed;
         // _renderer.material.color = placed ? Color.green : Color.gray;
     }
@@ -89,6 +93,11 @@ public class LevelTile : MonoBehaviour
     {
         _locked = true;
         // _renderer.material.color = Color.red;
+        // _collider.enabled = true;
+        for(int i = 0; i < gameObject.transform.childCount; ++i)
+        {
+            gameObject.transform.GetChild(i).gameObject.SetActive(true);
+        }
     }
 
     public void Unlock()
@@ -128,7 +137,8 @@ public class LevelTile : MonoBehaviour
             if(c.collider.gameObject.GetComponent<LevelTile>() == null) continue;
 
             //we found the first LevelTile. check if it's us
-            if(c.collider != _collider) break;
+            // if(c.collider != _collider) break;
+            if(c.collider != GetComponent<Collider>()) break;
 
             //user clicked on our own collider
             var currentPos = CurrentPos();

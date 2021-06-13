@@ -7,8 +7,13 @@ public class GoalReached : MonoBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        GameObject.Find("PlaymodeButton").GetComponent<PlaymodeSwitch>().EditModeStart();
+        Debug.Log("==== 01");
         // TODO get coordinates from grid
         GetComponent<SpawnTile>().SpawnTiles(new Vector3());
+        Debug.Log("==== 02");
+        var a = FindObjectOfType<PlaymodeSwitch>();
+        Debug.Log("==== 03 " + a);
+        a.EditModeStart();
+        Debug.Log("==== 04");
     }
 }
