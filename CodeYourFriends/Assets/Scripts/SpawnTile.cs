@@ -18,6 +18,8 @@ public class SpawnTile : MonoBehaviour
 
     private PlaymodeSwitch _playButton;
 
+    public LevelTile _startTile;
+
     private void Start()
     {
         _playButton = FindObjectOfType<PlaymodeSwitch>();
@@ -53,11 +55,11 @@ public class SpawnTile : MonoBehaviour
         var spawn = Instantiate(tileCollider);
         Instantiate(tileCollections[0].tiles[0].geometry, spawn.transform, true);
         spawn.transform.position = origPos;
-        var tileScript = spawn.AddComponent<LevelTile>();
-        _playButton.playmodeStartEvent.AddListener(tileScript.OnPlaymodeStart);
-        _playButton.playmodeEndEvent.AddListener(tileScript.OnPlaymodeEnd);
-        gm.ForcePlaceTile(origX, origY, tileScript);
-        tileScript.LockTile();
+        _startTile = spawn.AddComponent<LevelTile>();
+        _playButton.playmodeStartEvent.AddListener(_startTile.OnPlaymodeStart);
+        _playButton.playmodeEndEvent.AddListener(_startTile.OnPlaymodeEnd);
+        gm.ForcePlaceTile(origX, origY, _startTile);
+        _startTile.LockTile();
 
         //teleport player
         FindObjectOfType<PlayerMovementBehaviour>().gameObject.transform.position = spawnPoint;
