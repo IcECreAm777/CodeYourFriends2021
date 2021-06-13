@@ -89,7 +89,7 @@ public class LevelTile : MonoBehaviour
         // _renderer.material.color = placed ? Color.green : Color.gray;
     }
 
-    public void Lock()
+    public void LockTile()
     {
         _locked = true;
         // _renderer.material.color = Color.red;
@@ -100,13 +100,13 @@ public class LevelTile : MonoBehaviour
         }
     }
 
-    public void Unlock()
+    public void UnlockTile()
     {
         _locked = false;
         // _renderer.material.color = _isPlaced ? Color.green : Color.gray;
     }
 
-    public bool IsLocked()
+    public bool IsTileLocked()
     {
         return _locked;
     }
@@ -187,6 +187,6 @@ public class LevelTile : MonoBehaviour
         // _renderer.material.color = Color.yellow;
         transform.position = gridManager.GridCoordsToPosition(x, y);
         gridManager.ForcePlaceTile(x, y, this);
-        Lock();
+        LockTile();
     }
 }

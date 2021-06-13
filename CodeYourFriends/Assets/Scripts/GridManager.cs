@@ -14,12 +14,16 @@ public class GridManager : MonoBehaviour
     int tileSize = 2;
 
 
-    public LevelTile[,] _grid;
+    public LevelTile[,] _grid = null;
 
     // Start is called before the first frame update
     void Start()
     {
-        _grid = new LevelTile[gridExtendZ*2, gridExtendY*2];
+        InitGrid();
+    }
+    public void InitGrid()
+    {
+        if(_grid == null) _grid = new LevelTile[gridExtendZ*2, gridExtendY*2];
     }
 
     // Update is called once per frame
@@ -80,7 +84,7 @@ public class GridManager : MonoBehaviour
         // Debug.Log("visited ? " + x + " " + y);
         if(_grid[x, y] == null) return false; //an empty space does not count as connection point
         // if(_grid[x, y].IsLocked()) Debug.Log("found a locked tile");
-        if(_grid[x, y].IsLocked()) return true; //locked tiles are endpoints
+        if(_grid[x, y].IsTileLocked()) return true; //locked tiles are endpoints
 
         if(visited[x, y]) return false; //already visited this node, skip
         visited[x, y] = true;

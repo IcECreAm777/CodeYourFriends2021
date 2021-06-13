@@ -17,7 +17,7 @@ public class GoalReached : MonoBehaviour
         if(other != _playerCollider) return;
         Debug.Log("==== 01");
         // TODO get coordinates from grid
-        GetComponent<SpawnTile>().SpawnTiles(new Vector3());
+        GetComponent<SpawnTile>().SpawnTiles(new Vector3(0, 60, 0));
         Debug.Log("==== 02");
         var a = FindObjectOfType<PlaymodeSwitch>();
         Debug.Log("==== 03 " + a);

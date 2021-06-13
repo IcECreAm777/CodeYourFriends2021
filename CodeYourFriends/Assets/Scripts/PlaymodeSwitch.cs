@@ -29,6 +29,8 @@ public class PlaymodeSwitch : MonoBehaviour
 
         _collider = GetComponent<Collider>();
         GetComponent<Renderer>().material.color = Color.yellow;
+
+        PlayModeStart();
     }
 
     void Update()
