@@ -20,7 +20,7 @@ public class SpawnTile : MonoBehaviour
 
     public LevelTile _startTile;
 
-    private void Start()
+    private void Awake()
     {
         _playButton = FindObjectOfType<PlaymodeSwitch>();
         SpawnInitialTiles(_playButton.GetSpawnPosition());
@@ -46,12 +46,13 @@ public class SpawnTile : MonoBehaviour
 
     private void SpawnInitialTiles(Vector3 spawnPoint)
     {
-        // Debug.Log("SPAWN INITIAL TILES");
+        Debug.Log("SPAWN INITIAL TILES");
         var gm = FindObjectOfType<GridManager>();
         gm.InitGrid();
         int origX, origY;
         gm.PositionToGridCoords(spawnPoint, out origX, out origY);
         var origPos = gm.GridCoordsToPosition(origX, origY);
+        Debug.Log("SPAWN INITIAL TILES 2");
 
         //original spawn tile
         var spawn = Instantiate(tileCollider);
@@ -62,6 +63,7 @@ public class SpawnTile : MonoBehaviour
         _playButton.playmodeEndEvent.AddListener(_startTile.OnPlaymodeEnd);
         gm.ForcePlaceTile(origX, origY, _startTile);
         _startTile.LockTile();
+        Debug.Log("SPAWN INITIAL TILES 3");
 
         //teleport player
         FindObjectOfType<PlayerMovementBehaviour>().gameObject.transform.position = spawnPoint;

@@ -52,6 +52,7 @@ public class LevelTile : MonoBehaviour
             // plane.GetComponent<Renderer>().material.color = new Color(0, 0, 0, 1.0f); //transparent
             _texImage = plane.AddComponent<SpriteRenderer>();
             // _texImage.GetComponent<Collider>().enabled = false;
+            gridManager = FindObjectOfType<GridManager>();
         }
 
         if(_playmode)
@@ -141,12 +142,12 @@ public class LevelTile : MonoBehaviour
         UpdateTexture();
     }
 
-    public void UnlockTile()
-    {
-        _locked = false;
-        // _renderer.material.color = _isPlaced ? Color.green : Color.gray;
-        UpdateTexture();
-    }
+    // public void UnlockTile()
+    // {
+    //     _locked = false;
+    //     // _renderer.material.color = _isPlaced ? Color.green : Color.gray;
+    //     UpdateTexture();
+    // }
 
     public bool IsTileLocked()
     {
