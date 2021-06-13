@@ -192,29 +192,34 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     public void RestartLevel()
     {
+        deathPlane.deathUI.SetActive(false);
         //TODO make it as coroutine and fade out
-        transform.position = _start.GetSpawnPosition();
-        gameObject.GetComponent<MeshRenderer>().forceRenderingOff = false;
+
+        gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationY | RigidbodyConstraints.FreezeRotationZ;
+
         SpawnDeathPlane();
+
+        transform.position = _start.GetSpawnPosition();
     }
 
 
     private void SpawnDeathPlane()
     {
-        Debug.Log(gridManager);
         LevelTile[,] _grid = gridManager._grid;
 
         for (int i = 0; i < _grid.GetLength(0); i++)
         {
             for (int j = 0; j < _grid.GetLength(1); j++)
             {
-                if (!_grid[i, j].Equals(""))
+                if (!System.Object.Equals(_grid[i, j],null))
                 {
-
+                    Debug.Log("Position has been adjusted");
                     Vector3 newPosition = gridManager.GridCoordsToPosition(i, j);
                     newPosition.y -= 25;
+                    Debug.Log("New position adjusted");
                     deathPlane.transform.position = newPosition;
                 }
+                else continue;
             }
         }
     }
