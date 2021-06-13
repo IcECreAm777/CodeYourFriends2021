@@ -8,13 +8,13 @@ public class LevelTile : MonoBehaviour
     private bool _isPlaced = false;
     private bool _locked = false;
     private bool _dragging = false;
-    private bool _playmode = true; //TODO: change to false by default
+    private bool _playmode = false;
     private Vector3 _grabOffset;
     private bool _lastMouseDown = false;
 
     //COMPONENTS
     private Collider _collider;
-    private Renderer _renderer;
+    // private Renderer _renderer;
     private MouseInputController mouseInputController;
     private GridManager gridManager;
 
@@ -22,23 +22,25 @@ public class LevelTile : MonoBehaviour
     void Start()
     {
         _collider = GetComponent<Collider>();
-        _renderer = GetComponent<Renderer>();
+        // _renderer = GetComponent<Renderer>();
 
         var player = GameObject.Find("Capsule");
         mouseInputController = player.GetComponent<MouseInputController>();
 
         gridManager = FindObjectOfType<GridManager>();
 
+        OnPlaymodeStart(); //TODO: change depending on if we start in playmode or not
     }
 
     // Update is called once per frame
     private bool first = true;
     void Update()
     {
+        //TODO: remove
         if(first && gameObject.name == "Fixed")
         {
             first = false;
-            Place();
+            ForcePlaceAt(14, 18);
         }
 
         var mouseDown = mouseInputController.mouseButtonDown;
@@ -57,33 +59,42 @@ public class LevelTile : MonoBehaviour
     {
         MouseReleased(); //drop tile if dragging
         _collider.enabled = _isPlaced;
-        _renderer.enabled = _isPlaced;
+        if(!_isPlaced)
+        {
+            for(int i = 0; i < gameObject.transform.childCount; ++i)
+            {
+                gameObject.transform.GetChild(i).gameObject.SetActive(false);
+            }
+        }
         _playmode = true;
     }
 
     public void OnPlaymodeEnd()
     {
         _collider.enabled = true;
-        _renderer.enabled = true;
+        for(int i = 0; i < gameObject.transform.childCount; ++i)
+        {
+            gameObject.transform.GetChild(i).gameObject.SetActive(true);
+        }
         _playmode = false;
     }
 
     public void SetPlaced(bool placed)
     {
         _isPlaced = placed;
-        _renderer.material.color = placed ? Color.green : Color.gray;
+        // _renderer.material.color = placed ? Color.green : Color.gray;
     }
 
     public void Lock()
     {
         _locked = true;
-        _renderer.material.color = Color.red;
+        // _renderer.material.color = Color.red;
     }
 
     public void Unlock()
     {
         _locked = false;
-        _renderer.material.color = _isPlaced ? Color.green : Color.gray;
+        // _renderer.material.color = _isPlaced ? Color.green : Color.gray;
     }
 
     public bool IsLocked()
@@ -98,7 +109,7 @@ public class LevelTile : MonoBehaviour
         if(! _dragging) return;
 
         _dragging = false;
-        _renderer.material.color = Color.gray;
+        // _renderer.material.color = Color.gray;
 
         //drop object into grid
         var currentPos = CurrentPos();
@@ -126,7 +137,7 @@ public class LevelTile : MonoBehaviour
             if(_isPlaced && !gridManager.CanRemoveTile(x, y)) break;
 
             _dragging = true;
-            _renderer.material.color = Color.white;
+            // _renderer.material.color = Color.white;
 
             _grabOffset = currentPos - transform.position;
 
@@ -161,11 +172,9 @@ public class LevelTile : MonoBehaviour
         return ray.origin + factor * ray.direction;
     }
 
-    public void Place()
+    public void ForcePlaceAt(int x, int y)
     {
-        _renderer.material.color = Color.yellow;
-        int x = 14;
-        int y = 18;
+        // _renderer.material.color = Color.yellow;
         transform.position = gridManager.GridCoordsToPosition(x, y);
         gridManager.ForcePlaceTile(x, y, this);
         Lock();

@@ -117,7 +117,11 @@ public class GridManager : MonoBehaviour
     }
     public void PlaceTile(int x, int y, LevelTile tile)
     {
-        if(!CanPlaceTile(x, y)) return;
+        if(!CanPlaceTile(x, y))
+        {
+            Debug.Log("cannot place " + x + " " + y);
+            return;
+        }
         ForcePlaceTile(x, y, tile);
     }
 

@@ -9,9 +9,9 @@ public class PlaymodeSwitch : MonoBehaviour
 
     [Header("Event settings")]
     [SerializeField]
-    private UnityEvent playmodeStartEvent;
+    public UnityEvent playmodeStartEvent;
     [SerializeField]
-    private UnityEvent playmodeEndEvent;
+    public UnityEvent playmodeEndEvent;
 
     private bool playing = false;
 
