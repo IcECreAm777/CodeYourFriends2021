@@ -29,7 +29,7 @@ public class LevelTile : MonoBehaviour
 
         gridManager = FindObjectOfType<GridManager>();
 
-        OnPlaymodeStart(); //TODO: change depending on if we start in playmode or not
+        // OnPlaymodeStart(); //TODO: change depending on if we start in playmode or not
     }
 
     // Update is called once per frame
