@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEditor;
 
 public class LevelTile : MonoBehaviour
@@ -19,10 +20,8 @@ public class LevelTile : MonoBehaviour
     private MouseInputController mouseInputController;
     private GridManager gridManager;
 
-    private Texture2D _texPlaced;
-    private Texture2D _texLocked;
-    private Texture2D _texMovable;
-    private GameObject _texPlane;
+
+    private SpriteRenderer _texImage;
 
     // Start is called before the first frame update
     void Start()
@@ -34,37 +33,39 @@ public class LevelTile : MonoBehaviour
         mouseInputController = player.GetComponent<MouseInputController>();
 
         gridManager = FindObjectOfType<GridManager>();
-
-        _texPlaced = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets/UI/UI images/grid-overlay-alt-green.png", typeof(Texture2D));
-        _texLocked = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets/UI/UI images/grid-overlay-alt.png", typeof(Texture2D));
-        _texMovable = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets/UI/UI images/grid-overlay-alt-gray.png", typeof(Texture2D));
+;
         // OnPlaymodeStart(); //TODO: change depending on if we start in playmode or not
-
-        _texPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-        _texPlane.transform.parent = transform;
-        _texPlane.transform.localPosition = new Vector3(-1, 12.5f, 12.5f); //slightly behind
-        _texPlane.transform.localScale = new Vector3(2.5f, 1, 2.5f);
-        _texPlane.transform.localRotation = Quaternion.Euler(0, 0, -90);
-        _texPlane.GetComponent<Collider>().enabled = false;
 
         UpdateTexture();
     }
 
     void UpdateTexture()
     {
+        if(_texImage == null)
+        {
+            var plane = Instantiate<GameObject>(new GameObject(), transform);
+            // var plane = new GameObject();
+            plane.transform.parent = transform;
+            plane.transform.localPosition = new Vector3(-1, 12.5f, 12.5f); //slightly behind
+            plane.transform.localScale = new Vector3(5f, 5f, 1);
+            plane.transform.localRotation = Quaternion.Euler(0, 90, 0);
+            // plane.GetComponent<Renderer>().material.color = new Color(0, 0, 0, 1.0f); //transparent
+            _texImage = plane.AddComponent<SpriteRenderer>();
+            // _texImage.GetComponent<Collider>().enabled = false;
+        }
+
         if(_playmode)
         {
-            _texPlane.SetActive(false);
+            _texImage.enabled = false;
             return;
         }
-        _texPlane.SetActive(true);
-        var rend = _texPlane.GetComponent<Renderer>();
+        _texImage.enabled = true;
         if(_locked)
-            rend.material.mainTexture = _texLocked;
+            _texImage.sprite = gridManager._texLocked;
         else if(_isPlaced)
-            rend.material.mainTexture = _texPlaced;
+            _texImage.sprite = gridManager._texPlaced;
         else
-            rend.material.mainTexture = _texMovable;
+            _texImage.sprite = gridManager._texMovable;
         
     }
 

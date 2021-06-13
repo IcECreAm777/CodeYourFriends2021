@@ -13,6 +13,11 @@ public class GridManager : MonoBehaviour
     [SerializeField]
     int tileSize = 2;
 
+    [Header("Images")]
+    public Sprite _texPlaced;
+    public Sprite _texLocked;
+    public Sprite _texMovable;
+
 
     public LevelTile[,] _grid = null;
 
