@@ -26,6 +26,7 @@ public class SpawnTile : MonoBehaviour
             Instantiate(tileCollections[0].tiles[tileIndex].geometry, wrapper.transform, true);
             Instantiate(tileCollider, wrapper.transform, true);
             wrapper.transform.position = spawnPoint;
+            wrapper.AddComponent<LevelTile>();
         }
     }
 }

@@ -8,6 +8,7 @@ public class LevelTile : MonoBehaviour
     private bool _isPlaced = false;
     private bool _locked = false;
     private bool _dragging = false;
+    private bool _playmode = true; //TODO: change to false by default
     private Vector3 _grabOffset;
     private bool _lastMouseDown = false;
 
@@ -52,16 +53,19 @@ public class LevelTile : MonoBehaviour
             MouseDrag();
     }
 
-    void OnPlaymodeStart()
+    public void OnPlaymodeStart()
     {
+        MouseReleased(); //drop tile if dragging
         _collider.enabled = _isPlaced;
         _renderer.enabled = _isPlaced;
+        _playmode = true;
     }
 
-    void OnPlaymodeEnd()
+    public void OnPlaymodeEnd()
     {
         _collider.enabled = true;
         _renderer.enabled = true;
+        _playmode = false;
     }
 
     public void SetPlaced(bool placed)
@@ -90,6 +94,7 @@ public class LevelTile : MonoBehaviour
     private void MouseReleased()
     {
         if(_locked) return;
+        if(_playmode) return;
         if(! _dragging) return;
 
         _dragging = false;
@@ -105,6 +110,7 @@ public class LevelTile : MonoBehaviour
     private void MousePressed()
     {
         if(_locked) return;
+        if(_playmode) return;
 
         foreach(var c in mouseInputController.collidersUnderMouse)
         {
