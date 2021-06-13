@@ -12,7 +12,6 @@ public class DeathPlane : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             other.gameObject.GetComponent<MeshRenderer>().forceRenderingOff = true;
-            other.gameObject.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionY;
             StartCoroutine(Death());
         }
     }
