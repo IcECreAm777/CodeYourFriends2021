@@ -88,7 +88,7 @@ public class PlaymodeSwitch : MonoBehaviour
         playmodeStartEvent.Invoke();
         playing = true;
         Debug.Log("AAAAA");
-        GameObject.Find("nyancat").transform.localScale = new Vector3(10,10,10);
+        GameObject.Find("nyancat").transform.localScale = new Vector3(1, 1, 1);
         Debug.Log(GameObject.Find("nyancat"));
     }
 
@@ -97,7 +97,7 @@ public class PlaymodeSwitch : MonoBehaviour
         playmodeEndEvent.Invoke();
         playing = false;
         Debug.Log("BBBBB");
-        GameObject.Find("nyancat").transform.localScale = new Vector3(1, 1, 1);
+        GameObject.Find("nyancat").transform.localScale = new Vector3(10,10,10);
         Debug.Log(GameObject.Find("nyancat"));
     }
 
