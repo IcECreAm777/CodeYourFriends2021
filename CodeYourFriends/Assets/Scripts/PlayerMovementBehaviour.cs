@@ -27,6 +27,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private float walledGlidingSpeed = .5f;
     [SerializeField] 
     private float walledMaxGlidingSpeed = 2.0f;
+    [SerializeField]
+    public DeathPlane deathPlane;
+    [SerializeField]
+    public GridManager gridManager;
 
     [Header("Input Actions")]
     [SerializeField]
@@ -77,10 +81,19 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private GetCollisionScript _groundCheck;
     private GetCollisionScript _leftWallCheck;
     private GetCollisionScript _rightWallCheck;
+    
+    // animations
+    private Animator _animations;
+    private static readonly int Running = Animator.StringToHash("Running");
+    private static readonly int Jumping = Animator.StringToHash("Jumping");
+    private static readonly int Grounded = Animator.StringToHash("Grounded");
+    private static readonly int Walled = Animator.StringToHash("Walled");
+    private static readonly int VerticalSpeed = Animator.StringToHash("VerticalSpeed");
 
     protected void Awake()
     {
         _start = FindObjectOfType<PlaymodeSwitch>();
+        _animations = GetComponentInChildren<Animator>();
         
         _playModeInputMaps = new List<InputActionMap>()
         {
@@ -130,8 +143,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
         _rightWallCheck = transform.Find("RightWallCheck").GetComponent<GetCollisionScript>();
 
         _cam = Camera.main;
-
-        OnPlaymodeStart();
     }
 
     protected void FixedUpdate()
@@ -183,18 +194,50 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         //TODO make it as coroutine and fade out
         transform.position = _start.GetSpawnPosition();
+        gameObject.GetComponent<MeshRenderer>().forceRenderingOff = false;
+        SpawnDeathPlane();
+    }
+
+
+    private void SpawnDeathPlane()
+    {
+        Debug.Log(gridManager);
+        LevelTile[,] _grid = gridManager._grid;
+
+        for (int i = 0; i < _grid.GetLength(0); i++)
+        {
+            for (int j = 0; j < _grid.GetLength(1); j++)
+            {
+                if (!_grid[i, j].Equals(""))
+                {
+
+                    Vector3 newPosition = gridManager.GridCoordsToPosition(i, j);
+                    newPosition.y -= 25;
+                    deathPlane.transform.position = newPosition;
+                }
+            }
+        }
     }
     
     private void OnJump(InputAction.CallbackContext context)
     {
-        if(_groundCheck.IsColliding)
+        if (_groundCheck.IsColliding)
+        {
             _rb.AddForce(new Vector3(0, jumpForce, 0));
-        
-        if(_leftWallCheck.IsColliding)
+            _animations.SetBool(Jumping, true);
+        }
+
+        if (_leftWallCheck.IsColliding)
+        {
             _rb.AddForce(new Vector3(0, jumpForce, directionalJumpForce));
-        
-        if(_rightWallCheck.IsColliding)
+            _animations.SetBool(Jumping, true);
+        }
+
+        if (_rightWallCheck.IsColliding)
+        {
             _rb.AddForce(new Vector3(0, jumpForce, -directionalJumpForce));
+            _animations.SetBool(Jumping, true);
+        }
     }
 
     private void OnRestart(InputAction.CallbackContext context)
@@ -242,15 +285,45 @@ public class PlayerMovementBehaviour : MonoBehaviour
         {
             vel.y = vel.y < -walledMaxGlidingSpeed ? -walledMaxGlidingSpeed : vel.y - walledGlidingSpeed;
             _rb.velocity = vel;
+            UpdateAnimator();
             return;
         }
 
         vel.z = vel.z > maxSpeed ? maxSpeed : vel.z;
         vel.z = vel.z < -maxSpeed ? -maxSpeed : vel.z;
         _rb.velocity = vel;
+        
+        UpdateAnimator();
 
         if (!(_rb.velocity.y < 0)) return;
-        _rb.velocity += Vector3.down * fallMultiplier;
+        var velocity = _rb.velocity;
+        velocity += Vector3.down * fallMultiplier;
+        _rb.velocity = velocity;
+    }
+
+    private void UpdateAnimator()
+    {
+        var vel = _rb.velocity;
+        var runningLeft = vel.z < -0.1f;
+        var runningRight = vel.z > 0.1f;
+        
+        if (runningLeft && !runningRight)
+        {
+            var newRot = Quaternion.Euler(0, 180, 0);
+            _animations.transform.rotation = newRot;
+        }
+
+        if (runningRight && !runningLeft)
+        {
+            var newRot = Quaternion.Euler(0, 0, 0);
+            _animations.transform.rotation = newRot;
+        }
+        
+        _animations.SetFloat(VerticalSpeed, vel.y);
+        _animations.SetBool(Running, runningLeft || runningRight);
+        _animations.SetBool(Grounded, _groundCheck.IsColliding);
+        _animations.SetBool(Walled, _leftWallCheck.IsColliding || _rightWallCheck.IsColliding);
+        _animations.SetBool(Jumping, false);
     }
 
     private void EditModeUpdates()
