@@ -21,7 +21,7 @@ public class SpawnTile : MonoBehaviour
     private void Start()
     {
         _playButton = FindObjectOfType<PlaymodeSwitch>();
-        SpawnInitialTiles();
+        SpawnInitialTiles(_playButton.GetSpawnPosition());
     }
 
     public void SpawnTiles(Vector3 spawnPoint)
@@ -40,13 +40,13 @@ public class SpawnTile : MonoBehaviour
         }
     }
 
-    private void SpawnInitialTiles()
+    private void SpawnInitialTiles(Vector3 spawnPoint)
     {
         Debug.Log("SPAWN INITIAL TILES");
         var gm = FindObjectOfType<GridManager>();
         gm.InitGrid();
         int origX, origY;
-        gm.PositionToGridCoords(Vector3.zero, out origX, out origY);
+        gm.PositionToGridCoords(spawnPoint, out origX, out origY);
         var origPos = gm.GridCoordsToPosition(origX, origY);
 
         //original spawn tile
@@ -60,6 +60,6 @@ public class SpawnTile : MonoBehaviour
         tileScript.LockTile();
 
         //teleport player
-        FindObjectOfType<PlayerMovementBehaviour>().gameObject.transform.position = origPos + new Vector3(0, 10, 10);
+        FindObjectOfType<PlayerMovementBehaviour>().gameObject.transform.position = spawnPoint;
     }
 }

@@ -85,20 +85,14 @@ public class PlaymodeSwitch : MonoBehaviour
 
     public void PlayModeStart()
     {
-        Debug.Log("---- 01 ");
         playmodeStartEvent.Invoke();
-        Debug.Log("---- 02 ");
         playing = true;
-        Debug.Log("---- 03 ");
     }
 
     public void EditModeStart()
     {
-        Debug.Log("xxxx 01 ");
         playmodeEndEvent.Invoke();
-        Debug.Log("xxxx 02 ");
         playing = false;
-        Debug.Log("xxxx 03 ");
     }
 
     public Vector3 GetSpawnPosition()
