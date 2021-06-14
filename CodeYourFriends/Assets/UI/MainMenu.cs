@@ -13,6 +13,6 @@ public class MainMenu : MonoBehaviour
     //go to the actual game from tutorial
     private void OnTriggerEnter(Collider other)
     {
-        SceneManager.LoadScene("SnappingTestScene");
+        SceneManager.LoadScene("MainScene");
     }
 }
