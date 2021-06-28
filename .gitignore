@@ -9,6 +9,7 @@
 /CodeYourFriends/[Bb]uilds/
 /CodeYourFriends/[Ll]ogs/
 /CodeYourFriends/[Mm]emoryCaptures/
+/CodeYourFriends/[Aa]ssets/[Ee]xperimental/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
