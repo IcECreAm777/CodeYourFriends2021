@@ -9,16 +9,15 @@ public class LevelTile : MonoBehaviour
     //STATE
     private bool _isPlaced = false;
     private bool _locked = false;
-    private bool _dragging = false;
     private bool _playmode = false;
     private Vector3 _grabOffset;
-    private bool _lastMouseDown = false;
+    private bool _first = true;
 
     //COMPONENTS
     // private Collider _collider;
     // private Renderer _renderer;
-    private MouseInputController mouseInputController;
-    private GridManager gridManager;
+    //private MouseInputController mouseInputController;
+    private GridManager _gridManager;
 
 
     private SpriteRenderer _texImage;
@@ -29,10 +28,7 @@ public class LevelTile : MonoBehaviour
         // _collider = GetComponent<Collider>();
         // _renderer = GetComponent<Renderer>();
 
-        var player = GameObject.Find("Capsule");
-        mouseInputController = player.GetComponent<MouseInputController>();
-
-        gridManager = FindObjectOfType<GridManager>();
+        _gridManager = FindObjectOfType<GridManager>();
 ;
         // OnPlaymodeStart(); //TODO: change depending on if we start in playmode or not
 
@@ -43,7 +39,7 @@ public class LevelTile : MonoBehaviour
     {
         if(_texImage == null)
         {
-            var plane = Instantiate<GameObject>(new GameObject(), transform);
+            var plane = Instantiate(new GameObject(), transform);
             // var plane = new GameObject();
             plane.transform.parent = transform;
             plane.transform.localPosition = new Vector3(-1, 12.5f, 12.5f); //slightly behind
@@ -52,7 +48,7 @@ public class LevelTile : MonoBehaviour
             // plane.GetComponent<Renderer>().material.color = new Color(0, 0, 0, 1.0f); //transparent
             _texImage = plane.AddComponent<SpriteRenderer>();
             // _texImage.GetComponent<Collider>().enabled = false;
-            gridManager = FindObjectOfType<GridManager>();
+            _gridManager = FindObjectOfType<GridManager>();
         }
 
         if(_playmode)
@@ -62,50 +58,36 @@ public class LevelTile : MonoBehaviour
         }
         _texImage.enabled = true;
         if(_locked)
-            _texImage.sprite = gridManager._texLocked;
+            _texImage.sprite = _gridManager._texLocked;
         else if(_isPlaced)
-            _texImage.sprite = gridManager._texPlaced;
+            _texImage.sprite = _gridManager._texPlaced;
         else
-            _texImage.sprite = gridManager._texMovable;
+            _texImage.sprite = _gridManager._texMovable;
         
     }
 
     // Update is called once per frame
-    private bool first = true;
     void Update()
     {
         //TODO: remove
-        if(first && gameObject.name == "Fixed")
+        if(_first && gameObject.name == "Fixed")
         {
-            first = false;
+            _first = false;
             ForcePlaceAt(14, 18);
         }
-
-        var mouseDown = mouseInputController.mouseButtonDown;
-        if(mouseDown != _lastMouseDown)
-        {
-            _lastMouseDown = mouseDown;
-            if(mouseDown) MousePressed();
-            else MouseReleased();
-        }
-
-        if (_dragging)
-            MouseDrag();
     }
 
     public void OnPlaymodeStart()
     {
-        MouseReleased(); //drop tile if dragging
         // _collider.enabled = _isPlaced;
         if(!_isPlaced)
         {
-            Debug.Log("hiding " + gameObject);
+            Debug.Log("hiding " + gameObject.name);
             for(int i = 0; i < gameObject.transform.childCount; ++i)
             {
                 gameObject.transform.GetChild(i).gameObject.SetActive(false);
             }
         }
-
 
         _playmode = true;
         UpdateTexture();
@@ -154,63 +136,45 @@ public class LevelTile : MonoBehaviour
         return _locked;
     }
 
-    private void MouseReleased()
+    public bool StartDragging(Vector3 pos)
     {
-        if(_locked) return;
-        if(_playmode) return;
-        if(! _dragging) return;
-
-        _dragging = false;
-        // _renderer.material.color = Color.gray;
-
-        //drop object into grid
-        var currentPos = CurrentPos();
-        int x, y;
-        gridManager.PositionToGridCoords(currentPos, out x, out y);
-        gridManager.PlaceTile(x, y, this); //checks if we can place the tile
-    }
-
-    private void MousePressed()
-    {
-        if(_locked) return;
-        if(_playmode) return;
-
-        foreach(var c in mouseInputController.collidersUnderMouse)
+        
+#if DEBUG
+        if(_locked || _playmode)
         {
-            if(c.collider.gameObject.GetComponent<LevelTile>() == null) continue;
-
-            //we found the first LevelTile. check if it's us
-            // if(c.collider != _collider) break;
-            if(c.collider != GetComponent<Collider>()) break;
-
-            //user clicked on our own collider
-            var currentPos = CurrentPos();
-            int x, y;
-            gridManager.PositionToGridCoords(currentPos, out x, out y);
-            if(_isPlaced && !gridManager.CanRemoveTile(x, y)) break;
-
-            _dragging = true;
-            // _renderer.material.color = Color.white;
-
-            _grabOffset = currentPos - transform.position;
-
-            if(_isPlaced) gridManager.RemoveTile(x, y);
-
-            break;
+            Debug.Log("You failed.");
+            Destroy(gameObject);
+            return false;
         }
+#endif
+        
+        _gridManager.PositionToGridCoords(pos, out var x, out var y);
+        if (!_gridManager.CanRemoveTile(x, y))
+        {
+            return false;
+        }
+
+        _grabOffset = pos - transform.position;
+        if(_isPlaced) _gridManager.RemoveTile(x, y);
+        return true;
     }
 
-    private void MouseDrag()
+    public void Drag(Vector3 currentPos)
     {
-        if(_locked) return;
-
-        var currentPos = CurrentPos();
-        int x, y;
-        gridManager.PositionToGridCoords(currentPos, out x, out y);
-
-        if(gridManager.CanPlaceTile(x, y))
+        
+#if DEBUG
+        if (_locked)
         {
-            transform.position = gridManager.GridCoordsToPosition(x, y);
+            Debug.Log("You fucked up");
+            Destroy(gameObject);
+        }
+#endif
+        
+        _gridManager.PositionToGridCoords(currentPos, out var x, out var y);
+
+        if(_gridManager.CanPlaceTile(x, y))
+        {
+            transform.position = _gridManager.GridCoordsToPosition(x, y);
         }
         else
         {
@@ -218,18 +182,17 @@ public class LevelTile : MonoBehaviour
         }
     }
 
-    private Vector3 CurrentPos()
+    public void StopDragging(Vector3 currentPos)
     {
-        var ray = Camera.main.ScreenPointToRay(mouseInputController.mousePosition);
-        var factor = -(ray.origin.x) / ray.direction.x;
-        return ray.origin + factor * ray.direction;
+        _gridManager.PositionToGridCoords(currentPos, out var x, out var y);
+        _gridManager.PlaceTile(x, y, this); //checks if we can place the tile
     }
 
     public void ForcePlaceAt(int x, int y)
     {
         // _renderer.material.color = Color.yellow;
-        transform.position = gridManager.GridCoordsToPosition(x, y);
-        gridManager.ForcePlaceTile(x, y, this);
+        transform.position = _gridManager.GridCoordsToPosition(x, y);
+        _gridManager.ForcePlaceTile(x, y, this);
         LockTile();
     }
 }

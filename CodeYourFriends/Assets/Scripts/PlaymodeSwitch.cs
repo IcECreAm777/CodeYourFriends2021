@@ -16,89 +16,39 @@ public class PlaymodeSwitch : MonoBehaviour
     [SerializeField]
     public UnityEvent playmodeEndEvent;
 
-    private bool playing = false;
-
     //components
     private Collider _collider;
 
-    //input
-    private MouseInputController mouseInputController;
-    private bool mouseHovering = false;
-    private bool mouseBtnPressed = false;
+    private bool _playMode = true;
+
     private void Start()
     {
-        var player = GameObject.Find("Capsule");
-        mouseInputController = player.GetComponent<MouseInputController>();
-
-        _collider = GetComponent<Collider>();
-        GetComponent<Renderer>().material.color = Color.yellow;
-
         PlayModeStart();
     }
 
-    void Update()
+    public void ToggleMode()
     {
-        bool hovered = false;
-        foreach(var result in mouseInputController.collidersUnderMouse)
+        if (_playMode)
         {
-            if(result.collider == _collider)
-            {
-                hovered = true;
-                break;
-            }
+            EditModeStart();
+            return;
         }
-
-        if (hovered != mouseHovering)
-        {
-            mouseHovering = hovered;
-            if(hovered) OnMouseEnter();
-            else OnMouseExit();
-        }
-
-        if(mouseInputController.mouseButtonDown != mouseBtnPressed)
-        {
-            mouseBtnPressed = mouseInputController.mouseButtonDown;
-            if(mouseBtnPressed) OnMouseClicked();
-        }
-    }
-
-    private void OnMouseEnter() 
-    {
-        //TODO: effect for mouse hovering started
-        var rend = GetComponent<Renderer>();
-        rend.material.color = Color.red;
-    }
-
-    private void OnMouseExit()
-    {
-        //TODO: effect for mouse hovering stopped
-        var rend = GetComponent<Renderer>();
-        rend.material.color = playing ? Color.green : Color.yellow;
-    }
-    
-    private void OnMouseClicked()
-    {
-        if(!mouseHovering) return;
-        (playing ? playmodeEndEvent : playmodeStartEvent).Invoke();
-        playing = !playing;
+        
+        PlayModeStart();
     }
 
     public void PlayModeStart()
     {
         playmodeStartEvent.Invoke();
-        playing = true;
-        Debug.Log("AAAAA");
         GameObject.Find("nyancat").transform.localScale = new Vector3(1, 1, 1);
-        Debug.Log(GameObject.Find("nyancat"));
+        _playMode = true;
     }
 
     public void EditModeStart()
     {
         playmodeEndEvent.Invoke();
-        playing = false;
-        Debug.Log("BBBBB");
         GameObject.Find("nyancat").transform.localScale = new Vector3(10,10,10);
-        Debug.Log(GameObject.Find("nyancat"));
+        _playMode = false;
     }
 
     public Vector3 GetSpawnPosition()

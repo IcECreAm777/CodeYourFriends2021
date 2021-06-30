@@ -45,6 +45,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private InputActionMap enableEditModeMap;
     [SerializeField]
     private InputAction debugAction;
+    [SerializeField]
+    private InputActionMap mouseMovementMap;
+    [SerializeField]
+    private InputActionMap clickMap;
 
     [Header("Camera Control")] 
     [SerializeField]
@@ -71,6 +75,11 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private List<InputActionMap> _editModeMaps;
 
     private PlaymodeSwitch _start;
+    
+    private Vector2 _mousePosition;
+    private bool _mouseButtonDown;
+    private RaycastHit[] _collidersUnderMouse = new RaycastHit[10];
+    private LevelTile _draggedTile;
 
     // components
     private Rigidbody _rb;
@@ -134,7 +143,20 @@ public class PlayerMovementBehaviour : MonoBehaviour
         {
             action.performed += OnEnableEditMode;
         }
+        
+        foreach (var action in mouseMovementMap)
+        {
+            action.performed += MoveCursor;
+        }
+        foreach (var action in clickMap)
+        {
+            action.performed += OnClick;
+            action.canceled += OnRelease;
+        }
 
+        mouseMovementMap.Enable();
+        clickMap.Enable();
+        
         _rb = GetComponent<Rigidbody>();
         _collider = GetComponent<CapsuleCollider>();
 
@@ -170,8 +192,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         _rb.velocity = Vector3.zero;
         _rb.useGravity = false;
-        walkMap.Disable();
-        jumpMap.Disable();
         StartCoroutine(Zoom(editModePos.transform, true));
         ToggleModeInputs(false);
         transform.GetComponentInChildren<UfoBehaviour>().StopPointingToGoal();
@@ -179,11 +199,14 @@ public class PlayerMovementBehaviour : MonoBehaviour
     
     public void OnPlaymodeStart()
     {
+        if(_draggedTile != null)
+            _draggedTile.StopDragging(MouseToWorldPos());
+        
         _rb.useGravity = true;
         StartCoroutine(Zoom(playModePos.transform, false));
         ToggleModeInputs(true);
         transform.GetComponentInChildren<UfoBehaviour>().StartPointingToGoal();
-        RestartLevel();
+        //RestartLevel();
 
         if(!_firstPlayMode) return;
         playModeStarted.Invoke(playModeStartedMessage);
@@ -205,16 +228,16 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     private void SpawnDeathPlane()
     {
-        LevelTile[,] _grid = gridManager._grid;
+        LevelTile[,] grid = gridManager._grid;
 
-        for (int i = 0; i < _grid.GetLength(0); i++)
+        for (int i = 0; i < grid.GetLength(0); i++)
         {
-            for (int j = 0; j < _grid.GetLength(1); j++)
+            for (int j = 0; j < grid.GetLength(1); j++)
             {
-                if (!System.Object.Equals(_grid[i, j],null))
+                if (!System.Object.Equals(grid[i, j],null))
                 {
                     Debug.Log("Position has been adjusted");
-                    Vector3 newPosition = gridManager.GridCoordsToPosition(i, j);
+                    var newPosition = gridManager.GridCoordsToPosition(i, j);
                     newPosition.y -= 25;
                     Debug.Log("New position adjusted");
                     deathPlane.transform.position = newPosition;
@@ -333,6 +356,13 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     private void EditModeUpdates()
     {
+        if (_mouseButtonDown && _draggedTile != null)
+        {
+            _draggedTile.Drag(MouseToWorldPos());
+            return;
+        }
+        
+        //Updating cam (girls)
         var camTransform = _cam.transform;
         var newPos = camTransform.position;
         newPos.y += _dir.y * cameraEditModeSpeed; 
@@ -379,6 +409,42 @@ public class PlayerMovementBehaviour : MonoBehaviour
         {
             editModeMap.Disable();
         }
+    }
+    
+    private void MoveCursor(InputAction.CallbackContext context)
+    {
+        _mousePosition = context.ReadValue<Vector2>();
+        var ray = _cam.ScreenPointToRay(_mousePosition);
+        _collidersUnderMouse= Physics.RaycastAll(ray, Mathf.Infinity);
+    }
+
+    private void OnClick(InputAction.CallbackContext context)
+    {
+        _mouseButtonDown = true;
+
+        foreach (var raycastHit in _collidersUnderMouse)
+        {
+            var tile = raycastHit.collider.gameObject.GetComponent<LevelTile>();
+            if(tile == null || tile.IsTileLocked()) continue;
+            _draggedTile = tile.StartDragging(MouseToWorldPos()) ? tile : null;
+            break;
+        }
+    }
+    private void OnRelease(InputAction.CallbackContext context)
+    {
+        _mouseButtonDown = false;
+        
+        if(_draggedTile != null)  
+            _draggedTile.StopDragging(MouseToWorldPos());
+
+        _draggedTile = null;
+    }
+
+    private Vector3 MouseToWorldPos()
+    {
+        var ray = _cam.ScreenPointToRay(_mousePosition);
+        var factor = -(ray.origin.x) / ray.direction.x;
+        return ray.origin + factor * ray.direction;
     }
 
     private void debug(InputAction.CallbackContext context)
