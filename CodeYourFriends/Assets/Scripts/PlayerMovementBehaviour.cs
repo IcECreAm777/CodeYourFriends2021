@@ -60,10 +60,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
     [SerializeField]
     private GameObject playModePos;
 
-    [Header("Audio Settings")] 
-    [SerializeField]
-    private AudioClip footstepSound;
-    
     [Header("Event settings")]
     [SerializeField]
     private BroadcastUfoEvent playModeStarted;
@@ -88,8 +84,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
     // components
     private Rigidbody _rb;
     private Camera _cam;
-    private AudioSource _audio;
-    
+
     // children 
     private GetCollisionScript _groundCheck;
     private GetCollisionScript _leftWallCheck;
@@ -162,7 +157,6 @@ public class PlayerMovementBehaviour : MonoBehaviour
         clickMap.Enable();
         
         _rb = GetComponent<Rigidbody>();
-        _audio = GetComponent<AudioSource>();
 
         _groundCheck = transform.Find("GroundCheck").GetComponent<GetCollisionScript>();
         _leftWallCheck = transform.Find("LeftWallCheck").GetComponent<GetCollisionScript>();
