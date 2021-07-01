@@ -206,7 +206,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         StartCoroutine(Zoom(playModePos.transform, false));
         ToggleModeInputs(true);
         transform.GetComponentInChildren<UfoBehaviour>().StartPointingToGoal();
-        //RestartLevel();
+        RestartLevel();
 
         if(!_firstPlayMode) return;
         playModeStarted.Invoke(playModeStartedMessage);
