@@ -59,6 +59,10 @@ public class PlayerMovementBehaviour : MonoBehaviour
     private GameObject editModePos;
     [SerializeField]
     private GameObject playModePos;
+
+    [Header("Audio Settings")] 
+    [SerializeField]
+    private AudioClip footstepSound;
     
     [Header("Event settings")]
     [SerializeField]
@@ -83,8 +87,8 @@ public class PlayerMovementBehaviour : MonoBehaviour
 
     // components
     private Rigidbody _rb;
-    private CapsuleCollider _collider;
     private Camera _cam;
+    private AudioSource _audio;
     
     // children 
     private GetCollisionScript _groundCheck;
@@ -103,13 +107,13 @@ public class PlayerMovementBehaviour : MonoBehaviour
     {
         _start = FindObjectOfType<PlaymodeSwitch>();
         _animations = GetComponentInChildren<Animator>();
-        
-        _playModeInputMaps = new List<InputActionMap>()
+
+        _playModeInputMaps = new List<InputActionMap>
         {
             walkMap, jumpMap, restartLevelMap, enableEditModeMap
         };
 
-        _editModeMaps = new List<InputActionMap>()
+        _editModeMaps = new List<InputActionMap>
         {
             camMoveMap
         };
@@ -158,7 +162,7 @@ public class PlayerMovementBehaviour : MonoBehaviour
         clickMap.Enable();
         
         _rb = GetComponent<Rigidbody>();
-        _collider = GetComponent<CapsuleCollider>();
+        _audio = GetComponent<AudioSource>();
 
         _groundCheck = transform.Find("GroundCheck").GetComponent<GetCollisionScript>();
         _leftWallCheck = transform.Find("LeftWallCheck").GetComponent<GetCollisionScript>();
